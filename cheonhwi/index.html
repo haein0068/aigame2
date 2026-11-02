@@ -1,0 +1,4207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>천휘교 — 빛 속의 대역</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --red:#BA1200; --ink:#031927; --steel:#508AA8; --baby:#9DD1F1; --pale:#C8E0F4;
+  --bg:#031927; --text:#C8E0F4;
+  --panel:rgba(3,25,39,.94); --line:rgba(80,138,168,.7);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#031927; --text:#C8E0F4; } }
+:root[data-theme="dark"]{ --bg:#031927; --text:#C8E0F4; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+#frame{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;background:var(--ink);overflow:hidden;user-select:none}
+.serif{font-family:"Gowun Batang","Nanum Myeongjo",serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,.hot:focus-visible,.figure:focus-visible{outline:3px solid var(--baby);outline-offset:3px}
+.hidden{display:none!important}
+
+/* background */
+#bg{position:absolute;inset:0}
+#bg svg{width:100%;height:100%;display:block}
+
+/* hotspots & figures */
+#hots,#figs{position:absolute;inset:0;pointer-events:none}
+.hot,.figure{pointer-events:auto}
+.hot{position:absolute;background:transparent;border:2px dashed transparent;border-radius:4px;padding:0}
+.hot::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;background:var(--baby);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:twinkle 2.2s ease-in-out infinite}
+.hot.seen::after{background:var(--steel);animation:none;opacity:.6}
+.hot:hover{border-color:var(--baby);background:rgba(157,209,241,.08)}
+.hot .tip{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;background:var(--ink);border:1px solid var(--baby);padding:6px 12px;font-size:20px;opacity:0;pointer-events:none;transition:opacity .15s}
+.hot:hover .tip,.hot:focus-visible .tip{opacity:1}
+@keyframes twinkle{0%,100%{transform:scale(.7);opacity:.6}50%{transform:scale(1.15);opacity:1}}
+.figure{position:absolute;bottom:130px;width:180px;background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center}
+.figure svg{width:180px;height:270px;filter:drop-shadow(0 0 0 transparent);transition:filter .15s,transform .15s}
+.figure:hover svg{filter:drop-shadow(0 0 14px rgba(157,209,241,.7));transform:translateY(-4px)}
+.figure img{width:180px;height:270px;object-fit:contain}
+.figure .tag{margin-top:6px;background:var(--ink);border:1px solid var(--steel);padding:4px 12px;font-size:20px}
+.figure.talked .tag{border-color:rgba(80,138,168,.4);color:rgba(200,224,244,.6)}
+
+/* hud */
+#hud{position:absolute;inset:0;pointer-events:none}
+#hud .where{position:absolute;left:36px;top:28px;display:flex;align-items:flex-end;gap:18px}
+#hud .where .loc{font-size:40px;font-weight:700;letter-spacing:.02em}
+#hud .where .day{font-size:22px;color:var(--ink);background:var(--red);padding:4px 12px;margin-bottom:6px;clip-path:polygon(0 0,100% 0,92% 100%,0 100%)}
+#hud .goal{position:absolute;right:36px;top:30px;max-width:620px;background:var(--panel);border-left:4px solid var(--baby);padding:12px 18px;font-size:21px;line-height:1.5}
+#hud .goal small{display:block;color:var(--baby);font-size:16px;margin-bottom:2px}
+#bar{position:absolute;left:0;right:0;bottom:24px;display:flex;justify-content:center;gap:12px;pointer-events:auto}
+.btn{background:var(--panel);border:1px solid var(--line);padding:12px 24px;font-size:21px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+.btn:hover{background:var(--steel);color:var(--ink)}
+.btn.primary{background:var(--baby);color:var(--ink);border-color:var(--baby)}
+.btn.primary:hover{background:var(--pale)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* portrait */
+#portrait{position:absolute;left:560px;top:30px;width:480px;height:660px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;pointer-events:none;transition:opacity .2s}
+#portrait svg{width:420px;height:630px}
+#portrait img{max-width:480px;max-height:640px;object-fit:contain}
+#portrait .expr{position:absolute;bottom:250px;right:6px;background:var(--ink);border:1px solid var(--steel);color:var(--baby);font-size:18px;padding:3px 10px}
+#portrait.mirror{animation:flicker 1.4s steps(2) infinite}
+#portrait.mirror svg{filter:drop-shadow(0 0 30px rgba(157,209,241,.8))}
+#portrait.pop svg,#portrait.pop img{animation:pop .22s ease-out}
+@keyframes pop{from{transform:translateY(12px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes flicker{0%{opacity:.95}50%{opacity:.55}100%{opacity:.95}}
+
+/* dialogue */
+#dlg{position:absolute;left:60px;right:60px;bottom:28px;height:220px;background:var(--panel);border:2px solid var(--line);clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));padding:46px 56px 20px;cursor:pointer}
+#dlg .name{position:absolute;left:0;top:0;min-width:200px;padding:6px 28px 6px 24px;background:var(--steel);color:var(--ink);font-size:24px;font-weight:700;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%)}
+#dlg .name.hero{background:var(--pale)}
+#dlg .name.narr{display:none}
+#dlg .txt{font-size:27px;line-height:1.65;max-width:74ch;white-space:pre-wrap}
+#dlg .txt.narr{color:var(--baby)}
+#dlg .next{position:absolute;right:34px;bottom:22px;width:16px;height:16px;background:var(--baby);clip-path:polygon(0 0,100% 0,50% 100%);animation:bob 1s ease-in-out infinite}
+#dlg .ctrl{position:absolute;right:30px;top:10px;display:flex;gap:8px}
+#dlg .ctrl button{background:none;border:1px solid rgba(80,138,168,.6);padding:2px 12px;font-size:16px;color:var(--pale)}
+#dlg .ctrl button.on{background:var(--baby);color:var(--ink)}
+@keyframes bob{50%{transform:translateY(5px)}}
+
+/* choices */
+#choices{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(3,25,39,.45);padding-bottom:200px}
+#choices button{width:760px;background:var(--panel);border:2px solid var(--steel);padding:18px 28px;font-size:26px;text-align:left;clip-path:polygon(16px 0,100% 0,calc(100% - 16px) 100%,0 100%)}
+#choices button:hover,#choices button:focus-visible{background:var(--baby);color:var(--ink);border-color:var(--baby)}
+
+/* overlays */
+.ov{position:absolute;inset:0;background:rgba(3,25,39,.94);z-index:20}
+.ov h2{font-family:"Gowun Batang",serif;font-size:44px;margin:0;font-weight:700}
+.ov .close{position:absolute;right:40px;top:34px}
+#evid,#log,#confirm,#rec{z-index:26}
+
+/* note */
+#note{display:flex;align-items:center;justify-content:center;background:rgba(3,25,39,.8);cursor:pointer}
+#note .paper{width:760px;background:var(--pale);color:var(--ink);padding:60px 70px;font-family:"Gowun Batang",serif;font-size:34px;line-height:1.7;transform:rotate(-1.5deg);box-shadow:12px 12px 0 var(--red)}
+#note .paper small{display:block;font-family:"IBM Plex Sans KR",sans-serif;font-size:18px;color:var(--steel);margin-top:28px}
+
+/* evidence */
+#evid .wrap{position:absolute;left:60px;right:60px;top:120px;bottom:60px;display:grid;grid-template-columns:520px 1fr;gap:30px}
+#evid .list{overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px}
+#evid .item{background:none;border:1px solid var(--line);padding:14px 18px;text-align:left;font-size:23px;display:flex;align-items:center;gap:14px}
+#evid .item::before{content:"";width:14px;height:14px;background:var(--red);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);flex:none}
+#evid .item.sel{background:var(--steel);color:var(--ink)}
+#evid .detail{border:2px solid var(--line);padding:36px 40px;position:relative}
+#evid .detail h3{font-family:"Gowun Batang",serif;font-size:36px;margin:0 0 18px;color:var(--baby)}
+#evid .detail p{font-size:25px;line-height:1.7;margin:0;max-width:44ch}
+#evid .detail .present{position:absolute;right:30px;bottom:30px}
+#evid .empty{font-size:24px;color:var(--steel)}
+#evid .lead{position:absolute;left:60px;top:44px;display:flex;align-items:baseline;gap:20px}
+#evid .lead span{font-size:20px;color:var(--baby)}
+
+/* backlog */
+#log .list{position:absolute;left:120px;right:120px;top:120px;bottom:50px;overflow:auto;display:flex;flex-direction:column;gap:18px;padding-right:12px}
+#log .row{font-size:23px;line-height:1.6;max-width:80ch}
+#log .row b{color:var(--baby);font-weight:600;margin-right:12px}
+#log .row.narr{color:rgba(157,209,241,.85)}
+#log h2{position:absolute;left:120px;top:44px}
+
+/* map */
+#map svg{position:absolute;left:180px;top:110px;width:1240px;height:740px}
+#map h2{position:absolute;left:60px;top:44px}
+#map .node{cursor:pointer}
+#map .node rect{fill:var(--ink);stroke:var(--steel);stroke-width:3;transition:fill .15s}
+#map .node:hover rect,#map .node:focus-visible rect{fill:var(--steel)}
+#map .node.cur rect{stroke:var(--baby);stroke-width:5}
+#map .node.lock rect{stroke-dasharray:8 6;opacity:.6}
+#map .node text{fill:var(--pale);font-size:26px;font-family:"Gowun Batang",serif;font-weight:700}
+#map .node .who{font-family:"IBM Plex Sans KR",sans-serif;font-size:17px;font-weight:400;fill:var(--baby)}
+
+/* trial */
+#trial{background:radial-gradient(circle at 25% 60%,rgba(186,18,0,.25),transparent 55%),rgba(3,25,39,.97)}
+#trial .head{position:absolute;left:60px;top:40px;right:60px;display:flex;justify-content:space-between;align-items:center}
+#trial .head .t{display:flex;align-items:baseline;gap:22px}
+#trial .head .t span{font-size:22px;color:var(--baby)}
+#trial .focus{display:flex;gap:10px;align-items:center;font-size:20px}
+#trial .pip{width:26px;height:26px;background:var(--baby);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
+#trial .pip.off{background:rgba(80,138,168,.35)}
+#trial .por{position:absolute;left:70px;top:150px;width:420px;height:630px}
+#trial .por svg{width:100%;height:100%}
+#trial .por img{width:100%;height:100%;object-fit:contain}
+#trial .panel{position:absolute;left:540px;right:70px;top:230px;min-height:300px;border:2px solid var(--red);background:var(--panel);padding:50px 56px;clip-path:polygon(0 0,calc(100% - 30px) 0,100% 30px,100% 100%,0 100%)}
+#trial .panel .who{position:absolute;left:0;top:0;background:var(--red);color:var(--pale);font-size:24px;font-weight:700;padding:6px 26px}
+#trial .panel .count{position:absolute;right:46px;top:12px;color:var(--steel);font-size:19px}
+#trial .stmt{font-size:34px;line-height:1.6;font-family:"Gowun Batang",serif}
+#trial .weak{color:var(--baby);border-bottom:3px solid var(--baby);cursor:pointer;background:rgba(157,209,241,.08);padding:0 4px}
+#trial .weak:hover{background:var(--baby);color:var(--ink)}
+#trial .fb{margin-top:26px;font-size:23px;color:var(--red);min-height:34px}
+#trial .nav{position:absolute;left:540px;right:70px;top:580px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+#trial .hint{position:absolute;left:540px;right:70px;bottom:60px;font-size:21px;color:rgba(200,224,244,.75);line-height:1.6}
+#trial.shake .panel{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
+
+/* select */
+#select{background:rgba(3,25,39,.97)}
+#select h2{position:absolute;left:0;right:0;top:60px;text-align:center}
+#select .sub{position:absolute;left:0;right:0;top:128px;text-align:center;font-size:22px;color:var(--baby)}
+#select .cards{position:absolute;left:70px;right:70px;top:210px;display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
+#select .card{background:var(--panel);border:2px solid var(--steel);padding:20px 14px 24px;display:flex;flex-direction:column;align-items:center;gap:6px;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%)}
+#select .card:hover,#select .card:focus-visible{border-color:var(--baby);background:rgba(80,138,168,.25)}
+#select .card svg{width:200px;height:300px}
+#select .card img{width:200px;height:300px;object-fit:contain}
+#select .card .nm{font-family:"Gowun Batang",serif;font-size:30px;font-weight:700}
+#select .card .rl{font-size:19px;color:var(--baby)}
+#select .card .ln{font-size:18px;line-height:1.5;color:rgba(200,224,244,.8);text-align:center;min-height:54px;padding:0 6px}
+#select .card .done{font-size:16px;background:var(--red);color:var(--pale);padding:2px 10px}
+#select .foot{position:absolute;left:0;right:0;bottom:46px;display:flex;justify-content:center;gap:14px}
+
+/* confirm / pending */
+.modal{display:flex;align-items:center;justify-content:center}
+.modal .box{width:820px;background:var(--ink);border:2px solid var(--baby);padding:50px 56px;text-align:center}
+.modal .box p{font-size:26px;line-height:1.7;margin:0 0 32px}
+.modal .box .row{display:flex;justify-content:center;gap:14px}
+
+/* title */
+#title{background:var(--ink);z-index:30}
+#title .halo{position:absolute;left:50%;top:290px;width:500px;height:500px;margin:-250px 0 0 -250px}
+#title h1{position:absolute;left:0;right:0;top:196px;text-align:center;margin:0;font-family:"Gowun Batang",serif;font-size:136px;font-weight:700;letter-spacing:.18em;color:var(--pale);text-indent:.18em}
+#title .tag{position:absolute;left:0;right:0;top:372px;font-size:24px!important;text-align:center;font-size:26px;color:var(--baby);font-family:"Gowun Batang",serif}
+#title .menu{position:absolute;left:50%;top:584px;transform:translateX(-50%);display:flex;flex-direction:column;gap:12px;width:420px}
+#title .menu .btn{text-align:center;font-size:24px}
+#title .ver{position:absolute;right:30px;bottom:24px;font-size:16px;color:var(--steel)}
+
+/* records */
+#rec .cols{position:absolute;left:80px;right:80px;top:130px;bottom:60px;display:grid;grid-template-columns:1fr 1fr;gap:50px}
+#rec h2{position:absolute;left:80px;top:44px}
+#rec h3{font-family:"Gowun Batang",serif;font-size:28px;color:var(--baby);margin:0 0 16px}
+#rec .entry{border-left:4px solid var(--steel);padding:10px 18px;margin-bottom:14px;font-size:21px;line-height:1.6}
+#rec .entry b{display:block;font-size:22px;margin-bottom:2px}
+#rec .entry.lock{opacity:.45;border-color:rgba(80,138,168,.4)}
+#rec .entry.open{border-color:var(--baby)}
+
+/* skip ask & summary */
+#skipAsk,#skipSum{z-index:29}
+#skipAsk .box p small{display:block;font-size:20px;color:var(--baby);margin-top:12px;line-height:1.6}
+#skipSum .box{text-align:left}
+#skipSum .k{font-size:20px;color:var(--baby);margin-bottom:14px}
+#skipSum .sum{font-family:"Gowun Batang",serif;font-size:27px;line-height:1.8;margin:0 0 22px}
+#skipSum .got{font-size:20px;color:var(--pale);border-top:1px solid var(--line);padding-top:16px;margin-bottom:26px}
+#skipSum .got b{color:var(--red);margin-right:8px}
+#skipSum .row{justify-content:flex-end}
+
+/* save slots */
+#slots,#rec{z-index:31;background:var(--ink)}
+#slots h2{position:absolute;left:80px;top:44px}
+#slots .sub{position:absolute;left:80px;top:104px;font-size:19px;color:var(--baby)}
+#slots .grid{position:absolute;left:80px;right:80px;top:150px;bottom:50px;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:150px;gap:18px;overflow:auto;padding-right:6px}
+.slot{background:var(--panel);border:2px solid var(--line);text-align:left;padding:18px 26px;display:grid;grid-template-columns:110px 1fr;gap:4px 20px;align-content:center;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.slot:hover:not(:disabled),.slot:focus-visible{border-color:var(--baby);background:rgba(80,138,168,.25)}
+.slot:disabled{opacity:.4;cursor:not-allowed}
+.slot .no{grid-row:span 3;font-family:"Gowun Batang",serif;font-size:26px;font-weight:700;color:var(--baby);align-self:center}
+.slot .a{font-size:22px;font-weight:600}
+.slot .b{font-size:18px;color:rgba(200,224,244,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .c{font-size:16px;color:var(--steel)}
+.slot.armed{border-color:var(--red);background:rgba(186,18,0,.18)}
+.slot.empty .a{color:var(--steel);font-weight:400}
+
+/* ending & secret */
+#endcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--ink);cursor:pointer;z-index:28}
+#endcard .k{font-size:22px;color:var(--baby);letter-spacing:.08em}
+#endcard .t{font-family:"Gowun Batang",serif;font-size:72px;font-weight:700}
+#endcard .line{width:340px;height:3px;background:var(--red)}
+#endcard small{font-size:18px;color:var(--steel);margin-top:30px}
+#secretRev{display:flex;align-items:center;justify-content:center;z-index:28;background:radial-gradient(circle at 50% 45%,rgba(157,209,241,.18),transparent 60%),var(--ink)}
+#secretRev .box{width:900px;text-align:center}
+#secretRev .k{font-size:22px;color:var(--baby)}
+#secretRev h3{font-family:"Gowun Batang",serif;font-size:50px;margin:18px 0 26px}
+#secretRev p{font-size:28px;line-height:1.8;margin:0 auto 18px;max-width:34ch}
+#secretRev .cnt{font-size:20px;color:var(--steel);margin-bottom:40px}
+#secretRev .row{display:flex;justify-content:center;gap:14px}
+
+/* toast */
+#toast{position:absolute;left:50%;top:110px;transform:translateX(-50%);background:var(--red);color:var(--pale);font-size:23px;padding:12px 28px;z-index:40;opacity:0;transition:opacity .25s;pointer-events:none;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%)}
+#toast.show{opacity:1}
+
+/* fade */
+#fade{position:absolute;inset:0;background:var(--ink);opacity:0;pointer-events:none;transition:opacity .45s;z-index:35}
+#fade.on{opacity:1}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+#title .ver{left:35px;right:auto;bottom:32px;width:470px;line-height:1.7}#title .ver .btn{display:block;width:100%;font-size:18px;padding:10px 16px;margin-top:10px}#selFinal{font-size:20px}
+</style>
+</head>
+<body>
+<div id="frame">
+<div id="stage">
+  <div id="bg"></div>
+  <div id="hots"></div>
+  <div id="figs"></div>
+  <div id="portrait" class="hidden"></div>
+
+  <div id="hud" class="hidden">
+    <div class="where"><span class="loc serif" id="hudLoc"></span><span class="day" id="hudDay"></span></div>
+    <div class="goal" id="hudGoal"><small>지금 할 일</small><span></span></div>
+    <div id="bar">
+      <button class="btn" data-act="map">지도</button>
+      <button class="btn" data-act="evid">진실의 조각</button>
+      <button class="btn" data-act="log">지난 대사</button>
+      <button class="btn" data-act="save">저장</button>
+      <button class="btn" data-act="load">불러오기</button>
+      <button class="btn" data-act="title">타이틀로</button>
+    </div>
+  </div>
+
+  <div id="dlg" class="hidden" role="button" tabindex="0" aria-label="대사 넘기기">
+    <div class="name" id="dName"></div>
+    <div class="ctrl">
+      <button id="cAuto" type="button">자동</button>
+      <button id="cSpeed" type="button">2배속</button>
+      <button id="cSkip" type="button">스킵</button>
+      <button id="cLog" type="button">지난 대사</button>
+      <button type="button" data-act="save">저장</button>
+    </div>
+    <div class="txt" id="dTxt"></div>
+    <div class="next hidden" id="dNext"></div>
+  </div>
+
+  <div id="choices" class="hidden"></div>
+
+  <div id="note" class="ov hidden"><div class="paper"><div id="noteTxt"></div><small>눌러서 계속</small></div></div>
+
+  <div id="evid" class="ov hidden">
+    <div class="lead"><h2>진실의 조각</h2><span id="evMode"></span></div>
+    <button class="btn close" data-close="evid">닫기</button>
+    <div class="wrap"><div class="list" id="evList"></div><div class="detail" id="evDetail"></div></div>
+  </div>
+
+  <div id="log" class="ov hidden"><h2>지난 대사</h2><button class="btn close" data-close="log">닫기</button><div class="list" id="logList"></div></div>
+
+  <div id="map" class="ov hidden"><h2>교단 본부</h2><button class="btn close" data-close="map">닫기</button><svg viewBox="0 0 1240 740" id="mapSvg"></svg></div>
+
+  <div id="trial" class="ov hidden">
+    <div class="head"><div class="t"><h2>심문</h2><span id="trTitle"></span></div><div class="focus"><button class="btn" data-act="save" style="font-size:18px;padding:8px 18px;margin-right:18px">저장</button>집중력 <span id="trPips" style="display:flex;gap:8px"></span></div></div>
+    <div class="por" id="trPor"></div>
+    <div class="panel"><div class="who" id="trWho"></div><div class="count" id="trCount"></div><div class="stmt" id="trStmt"></div><div class="fb" id="trFb"></div></div>
+    <div class="nav">
+      <button class="btn" id="trPrev">이전 발언</button>
+      <button class="btn" id="trEv">진실의 조각 보기</button>
+      <button class="btn" id="trNext">다음 발언</button>
+    </div>
+    <div class="hint">발언 속 밝게 표시된 부분을 누르면, 그 말을 반박할 진실의 조각을 고를 수 있어요. 모순된 곳을 정확히 찔러야 해요.</div>
+  </div>
+
+  <div id="select" class="ov hidden">
+    <h2>누구를 의심할 것인가</h2>
+    <div class="sub">가장 의심스러운 사람을 한 명 고르세요. 그 사람 곁에 붙어 진실을 파헤치게 돼요.</div>
+    <div class="cards" id="selCards"></div><button class="btn primary hidden" id="selFinal" style="position:absolute;bottom:115px;left:50%;transform:translateX(-50%)" onclick="startFinal()">다섯 사람의 진실을 잇는다 · 최종장으로</button>
+    <div class="foot"><button class="btn" data-act="save">저장</button><button class="btn" data-act="records">비밀 기록</button><button class="btn" data-act="title">타이틀로</button></div>
+  </div>
+
+  <div id="confirm" class="ov modal hidden"><div class="box"><p id="cfTxt"></p><div class="row"><button class="btn primary" id="cfYes">의심한다</button><button class="btn" id="cfNo">다시 생각한다</button></div></div></div>
+
+  <div id="pending" class="ov modal hidden"><div class="box"><p id="pdTxt"></p><div class="row"><button class="btn primary" id="pdBack">다른 사람 고르기</button><button class="btn" data-act="title">타이틀로</button></div></div></div>
+
+  <div id="rec" class="ov hidden"><h2>기록</h2><button class="btn close" data-close="rec">닫기</button><div class="cols"><div id="recSecrets"></div><div id="recEndings"></div></div></div>
+
+  <div id="title" class="ov">
+    <svg class="halo" viewBox="0 0 500 500" aria-hidden="true">
+      <circle cx="250" cy="250" r="200" fill="none" stroke="#9DD1F1" stroke-width="5" opacity=".75"/>
+      <circle cx="250" cy="250" r="222" fill="none" stroke="#508AA8" stroke-width="1.5" opacity=".6"/>
+      <g fill="#9DD1F1">
+        <path d="M250 18 l9 32 l32 9 l-32 9 l-9 32 l-9 -32 l-32 -9 l32 -9z"/>
+        <path d="M250 382 l7 24 l24 7 l-24 7 l-7 24 l-7 -24 l-24 -7 l24 -7z" opacity=".7"/>
+      </g>
+    </svg>
+    <h1>천휘교</h1>
+    <div class="tag">교주님은 빛 속에서 영원히 사신다</div>
+    <div class="menu">
+      <button class="btn primary" id="tNew">처음부터</button>
+      <button class="btn" id="tCont">이어하기</button>
+      <button class="btn hidden" id="tSel">동행 선택부터 (공통 파트 건너뛰기)</button>
+      <button class="btn" data-act="records">비밀 기록과 엔딩</button>
+      <button class="btn" id="tFinal" disabled>최종장 · 3주년 휘광제</button>
+    </div>
+    <div class="ver">개인 루트 5개 · 모든 이야기 완료 후 최종장 개방</div>
+  </div>
+
+  <div id="skipAsk" class="ov modal hidden"><div class="box"><p>스킵하시겠습니까?<small>다음 선택지나 사건까지 넘어가요. 처음 보는 내용은 200자 이내 요약으로 보여드려요.</small></p><div class="row"><button class="btn primary" id="skYes">스킵</button><button class="btn" id="skNo">취소</button></div></div></div>
+  <div id="skipSum" class="ov modal hidden"><div class="box"><div class="k">넘긴 내용 요약</div><p class="sum" id="skText"></p><div class="got hidden" id="skGot"></div><div class="row"><button class="btn primary" id="skGo">계속</button></div></div></div>
+  <div id="slots" class="ov hidden"><h2 id="slTitle">저장</h2><div class="sub" id="slSub"></div><button class="btn close" data-close="slots">닫기</button><div class="grid" id="slGrid"></div></div>
+  <div id="endcard" class="ov hidden"><span class="k">개인 엔딩</span><span class="t" id="endTitle"></span><span class="line"></span><small>눌러서 계속</small></div>
+  <div id="secretRev" class="ov hidden"><div class="box"><div class="k">세계의 비밀이 하나 밝혀졌다</div><h3 id="srTitle"></h3><p id="srText"></p><div class="cnt" id="srCnt"></div><div class="row"><button class="btn primary hidden" id="srFinal" onclick="startFinal()">최종장 · 3주년 휘광제로</button><button class="btn primary" id="srSel">다른 사람 고르기</button><button class="btn" data-act="title">타이틀로</button></div></div></div>
+  <div id="toast"></div>
+  <div id="fade"></div>
+</div>
+</div>
+
+<script>
+/* =========================================================
+   일러스트 교체 설정
+   이미지 경로를 넣으면 도형 대신 그림이 나와요. null이면 도형.
+   예) PORTRAITS.leo.smile = "images/leo_smile.png";
+   표정: neutral, smile, angry, shocked, sad, suspicious
+   ========================================================= */
+const PORTRAITS = {
+  hajin:{}, seolyu:{}, seongche:{}, leo:{}, eungyeol:{}, arin:{}, docheol:{}, sian:{}
+};
+
+const CHARS = {
+  hajin:   {name:'하진',   role:'교주 수행비서',  shape:'circle',   head:'#C8E0F4', body:'#508AA8'},
+  seolyu:  {name:'???',    role:'거울 속의 얼굴', shape:'star',     head:'#9DD1F1', body:'#031927', halo:true},
+  seongche:{name:'성체',   role:'교주의 몸',      shape:'circle',   head:'#C8E0F4', body:'#508AA8', ghost:true},
+  leo:     {name:'진레오', role:'마술사',         shape:'triangle', head:'#BA1200', body:'#031927'},
+  eungyeol:{name:'하은결', role:'성대모사 성우',  shape:'drop',     head:'#9DD1F1', body:'#508AA8'},
+  arin:    {name:'모아린', role:'스타일리스트',   shape:'diamond',  head:'#C8E0F4', body:'#031927'},
+  docheol: {name:'강도철', role:'채권 추심원',    shape:'square',   head:'#508AA8', body:'#BA1200'},
+  sian:    {name:'백시안', role:'사설탐정',       shape:'hexagon',  head:'#031927', body:'#508AA8'}
+};
+const EXPR = {neutral:'평소', smile:'웃음', angry:'분노', shocked:'놀람', sad:'슬픔', suspicious:'의심'};
+const LIGHT = ['#C8E0F4','#9DD1F1'];
+
+function starPts(cx,cy,ro,ri,n){let p=[];for(let i=0;i<n*2;i++){const r=i%2?ri:ro;const a=-Math.PI/2+i*Math.PI/n;p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1));}return p.join(' ');}
+function polyPts(cx,cy,r,n,rot){let p=[];for(let i=0;i<n;i++){const a=rot+i*2*Math.PI/n;p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1));}return p.join(' ');}
+
+function headSVG(shape,fill,stroke){
+  const a=`fill="${fill}" stroke="${stroke}" stroke-width="7" stroke-linejoin="round"`;
+  switch(shape){
+    case 'circle':   return [`<circle cx="200" cy="200" r="108" ${a}/>`,195];
+    case 'star':     return [`<polygon points="${starPts(200,205,138,66,5)}" ${a}/>`,205];
+    case 'triangle': return [`<polygon points="200,62 334,302 66,302" ${a}/>`,232];
+    case 'drop':     return [`<path d="M200 66 C250 140 308 182 308 232 A108 108 0 0 1 92 232 C92 182 150 140 200 66 Z" ${a}/>`,232];
+    case 'diamond':  return [`<polygon points="200,80 318,200 200,320 82,200" ${a}/>`,195];
+    case 'square':   return [`<rect x="96" y="96" width="208" height="208" rx="10" ${a}/>`,192];
+    case 'hexagon':  return [`<polygon points="${polyPts(200,200,118,6,0)}" ${a}/>`,195];
+  }
+  return [`<circle cx="200" cy="200" r="108" ${a}/>`,195];
+}
+function faceSVG(expr,y,col){
+  const L=160,R=240,sw=`stroke="${col}" stroke-width="8" stroke-linecap="round" fill="none"`;
+  let e='',m='';
+  switch(expr){
+    case 'smile': e=`<path d="M${L-18} ${y+5} Q${L} ${y-13} ${L+18} ${y+5}" ${sw}/><path d="M${R-18} ${y+5} Q${R} ${y-13} ${R+18} ${y+5}" ${sw}/>`; m=`<path d="M176 ${y+42} Q200 ${y+62} 224 ${y+42}" ${sw}/>`; break;
+    case 'angry': e=`<path d="M${L-20} ${y-10} L${L+18} ${y+6}" ${sw}/><path d="M${R+20} ${y-10} L${R-18} ${y+6}" ${sw}/>`; m=`<path d="M180 ${y+52} L220 ${y+52}" ${sw}/>`; break;
+    case 'shocked': e=`<circle cx="${L}" cy="${y}" r="12" ${sw}/><circle cx="${R}" cy="${y}" r="12" ${sw}/>`; m=`<ellipse cx="200" cy="${y+52}" rx="10" ry="14" ${sw}/>`; break;
+    case 'sad': e=`<path d="M${L-18} ${y-2} L${L+18} ${y-10}" ${sw}/><path d="M${R+18} ${y-2} L${R-18} ${y-10}" ${sw}/><path d="M${L-16} ${y+10} L${L+16} ${y+10}" ${sw}/><path d="M${R-16} ${y+10} L${R+16} ${y+10}" ${sw}/>`; m=`<path d="M180 ${y+58} Q200 ${y+44} 220 ${y+58}" ${sw}/>`; break;
+    case 'suspicious': e=`<path d="M${L-18} ${y} L${L+18} ${y}" ${sw}/><path d="M${R-18} ${y-6} L${R+18} ${y-6}" ${sw}/><path d="M${R-16} ${y-24} L${R+16} ${y-30}" ${sw}/>`; m=`<path d="M190 ${y+52} L226 ${y+46}" ${sw}/>`; break;
+    default: e=`<path d="M${L-18} ${y} L${L+18} ${y}" ${sw}/><path d="M${R-18} ${y} L${R+18} ${y}" ${sw}/>`; m=`<path d="M188 ${y+50} L212 ${y+50}" ${sw}/>`;
+  }
+  return e+m;
+}
+function figureSVG(id,expr){
+  const c=CHARS[id]; expr=expr||'neutral';
+  const hs = c.head==='#031927' ? '#9DD1F1' : '#031927';
+  const bs = c.body==='#031927' ? '#508AA8' : '#031927';
+  const fc = LIGHT.includes(c.head) ? '#031927' : '#C8E0F4';
+  const [head,fy]=headSVG(c.shape,c.head,hs);
+  const halo = c.halo ? `<circle cx="200" cy="200" r="168" fill="none" stroke="#9DD1F1" stroke-width="5" opacity=".8"/><path d="M200 18 l7 22 l22 7 l-22 7 l-7 22 l-7 -22 l-22 -7 l22 -7z" fill="#9DD1F1"/>` : '';
+  const g0=c.ghost?'<g opacity=".5">':'', g1=c.ghost?'</g>':'';
+  return `<svg viewBox="0 0 400 600" aria-hidden="true">${halo}${g0}
+    <path d="M62 600 L118 352 Q200 316 282 352 L338 600 Z" fill="${c.body}" stroke="${bs}" stroke-width="7" stroke-linejoin="round"/>
+    <polygon points="168,348 200,430 232,348" fill="#C8E0F4" stroke="${bs}" stroke-width="4"/>
+    <path d="M200 372 L200 440" stroke="#BA1200" stroke-width="10" stroke-linecap="round"/>
+    ${head}${faceSVG(expr,fy,fc)}${g1}</svg>`;
+}
+function portraitHTML(id,expr){
+  const src = PORTRAITS[id] && PORTRAITS[id][expr||'neutral'];
+  if(src) return `<img src="${src}" alt="${CHARS[id].name}">`;
+  return figureSVG(id,expr);
+}
+
+/* ===================== 장소와 배경 ===================== */
+const LOCS = {chapel_lit:'대예배당', hajin_room:'하진의 방', corridor:'회랑', chapel:'대예배당', ritual:'의식실', studio:'녹음실', dressing:'의상실', accounts:'회계실', watch:'감시실', stage:'무대 장치실'};
+const CHAR_X = {hajin_room:880, corridor:1180, chapel:1260, ritual:240, studio:690, dressing:260, accounts:1240, watch:300, stage:250};
+
+function bgSVG(loc){
+  const base = `<rect width="1600" height="900" fill="#031927"/><rect y="700" width="1600" height="200" fill="#508AA8" opacity=".1"/><line x1="0" y1="700" x2="1600" y2="700" stroke="#508AA8" stroke-width="2" opacity=".5"/>`;
+  let s='';
+  const folds=(x,y,w,h,st)=>{let o='';for(let i=x+30;i<x+w;i+=44)o+=`<line x1="${i}" y1="${y}" x2="${i+(i%3?6:-6)}" y2="${y+h}" stroke="${st}" stroke-width="3" opacity=".45"/>`;return o;};
+  switch(loc){
+    case 'black': return `<svg viewBox="0 0 1600 900"><rect width="1600" height="900" fill="#031927"/></svg>`;
+    case 'ritual':
+      s+=`<path d="M380 700 V260 A420 420 0 0 1 1220 260 V700" fill="none" stroke="#508AA8" stroke-width="4" opacity=".35"/>`;
+      s+=`<rect x="480" y="110" width="640" height="590" fill="#508AA8" opacity=".2"/>`+folds(480,110,640,590,'#031927');
+      s+=`<circle cx="800" cy="330" r="96" fill="none" stroke="#9DD1F1" stroke-width="4" opacity=".35"/>`;
+      s+=`<circle cx="800" cy="330" r="42" fill="#031927" opacity=".85"/><path d="M700 640 Q705 430 800 400 Q895 430 900 640 Z" fill="#031927" opacity=".85"/>`;
+      s+=`<rect x="460" y="96" width="680" height="18" fill="#BA1200" opacity=".8"/>`;
+      s+=`<ellipse cx="800" cy="768" rx="320" ry="52" fill="none" stroke="#9DD1F1" stroke-width="3" opacity=".45"/><polygon points="${starPts(800,768,120,40,6).split(' ').map(p=>{const [x,y]=p.split(',');return x+','+(768+(y-768)*.3).toFixed(1);}).join(' ')}" fill="#9DD1F1" opacity=".2"/>`;
+      for(let k=0;k<6;k++){ const a=-Math.PI/2+k*Math.PI/3; const x=800+300*Math.cos(a), y=768+48*Math.sin(a); s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14" fill="${k===5?'#031927':'none'}" stroke="${k===5?'#BA1200':'#9DD1F1'}" stroke-width="3" opacity=".8"/>`; }
+      for(let x=120;x<1500;x+=86){ if(x>440&&x<1160) continue; s+=`<rect x="${x}" y="640" width="12" height="54" fill="#C8E0F4" opacity=".55"/><ellipse cx="${x+6}" cy="628" rx="8" ry="14" fill="#9DD1F1"/>`; }
+      break;
+    case 'chapel': case 'chapel_lit':
+      [260,1200].forEach(x=>{s+=`<path d="M${x} 560 V200 A70 70 0 0 1 ${x+140} 200 V560 Z" fill="#9DD1F1" opacity=".1" stroke="#508AA8" stroke-width="4"/>`;});
+      s+=`<circle cx="800" cy="140" r="96" fill="#508AA8" opacity=".18" stroke="#9DD1F1" stroke-width="4"/><polygon points="${starPts(800,140,70,26,4)}" fill="#9DD1F1" opacity=".55"/>`;
+      s+=`<rect x="600" y="250" width="400" height="390" fill="#BA1200" opacity=".5"/>`+folds(600,250,400,390,'#031927');
+      s+=`<rect x="560" y="636" width="480" height="30" fill="#508AA8" opacity=".5"/>`;
+      for(let r=0;r<3;r++){const y=700+r*62;s+=`<rect x="120" y="${y}" width="${560-r*20}" height="26" fill="#508AA8" opacity="${.35-r*.07}"/><rect x="${920+r*20}" y="${y}" width="${560-r*20}" height="26" fill="#508AA8" opacity="${.35-r*.07}"/>`;}
+      if(loc==='chapel_lit'){
+        s+=`<defs><radialGradient id="glow" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#9DD1F1" stop-opacity=".55"/><stop offset="1" stop-color="#9DD1F1" stop-opacity="0"/></radialGradient></defs><rect width="1600" height="900" fill="url(#glow)"/>`;
+        s+=`<circle cx="800" cy="140" r="96" fill="#C8E0F4" opacity=".6"/><polygon points="${starPts(800,445,230,40,4)}" fill="#C8E0F4" opacity=".35"/>`;
+        for(let x=90;x<1560;x+=58){ s+=`<rect x="${x}" y="664" width="8" height="30" fill="#C8E0F4" opacity=".7"/><ellipse cx="${x+4}" cy="654" rx="7" ry="12" fill="#C8E0F4"/>`; }
+      }
+      break;
+    case 'studio':
+      for(let y=60;y<560;y+=90)for(let x=40;x<1000;x+=90)s+=`<rect x="${x}" y="${y}" width="78" height="78" fill="#C8E0F4" opacity=".05"/>`;
+      s+=`<line x1="410" y1="690" x2="410" y2="400" stroke="#C8E0F4" stroke-width="8" opacity=".6"/><rect x="378" y="300" width="64" height="110" rx="30" fill="#508AA8" stroke="#C8E0F4" stroke-width="4"/>`;
+      [210,340,470].forEach(y=>{s+=`<rect x="1050" y="${y+60}" width="420" height="14" fill="#508AA8" opacity=".7"/>`;for(let x=1080;x<1460;x+=64){ if(y===470&&x>=1400) continue; s+=`<circle cx="${x}" cy="${y+30}" r="27" fill="none" stroke="#9DD1F1" stroke-width="4" opacity=".7"/><circle cx="${x}" cy="${y+30}" r="6" fill="#9DD1F1" opacity=".7"/>`; }});
+      s+=`<rect x="583" y="153" width="78" height="78" fill="none" stroke="#C8E0F4" stroke-width="2" opacity=".22" transform="rotate(2 622 192)"/>`;
+      s+=`<rect x="120" y="630" width="520" height="70" fill="#508AA8" opacity=".35"/>`;for(let x=150;x<620;x+=46)s+=`<rect x="${x}" y="648" width="22" height="34" fill="#9DD1F1" opacity=".4"/>`;
+      break;
+    case 'dressing':
+      s+=`<circle cx="790" cy="214" r="34" fill="#508AA8"/><polygon points="716,256 864,256 950,720 630,720" fill="#031927" stroke="#508AA8" stroke-width="5"/><polygon points="790,280 760,720 820,720" fill="#BA1200" opacity=".85"/><polygon points="716,256 650,470 700,470" fill="#031927" stroke="#508AA8" stroke-width="4"/><polygon points="864,256 930,470 880,470" fill="#031927" stroke="#508AA8" stroke-width="4"/>`;
+      for(let i=0;i<4;i++)s+=`<rect x="${1100+i*80}" y="140" width="56" height="320" rx="26" fill="${['#508AA8','#BA1200','#9DD1F1','#C8E0F4'][i]}" opacity=".35"/>`;
+      s+=`<rect x="1060" y="670" width="320" height="30" fill="#508AA8" opacity=".6"/><rect x="1120" y="594" width="170" height="78" fill="#C8E0F4" opacity=".8"/><line x1="1140" y1="620" x2="1270" y2="620" stroke="#031927" stroke-width="3"/><line x1="1140" y1="642" x2="1240" y2="642" stroke="#031927" stroke-width="3"/>`;
+      break;
+    case 'accounts':
+      s+=`<rect x="200" y="580" width="580" height="34" fill="#508AA8" opacity=".6"/>`;
+      [[260,180],[340,140],[420,200],[500,120],[580,170],[660,150]].forEach(([x,h])=>{for(let y=580-h;y<580;y+=22)s+=`<rect x="${x}" y="${y}" width="66" height="20" fill="${y%44?'#C8E0F4':'#9DD1F1'}" opacity=".55" stroke="#031927" stroke-width="2"/>`;});
+      s+=`<rect x="920" y="440" width="190" height="260" fill="#508AA8" opacity=".55" stroke="#C8E0F4" stroke-width="4"/><circle cx="1015" cy="560" r="36" fill="none" stroke="#C8E0F4" stroke-width="5"/><line x1="1015" y1="560" x2="1040" y2="540" stroke="#C8E0F4" stroke-width="5"/>`;
+      [950,1000,1050].forEach(x=>{s+=`<polygon points="${x},398 ${x+34},398 ${x+28},440 ${x+6},440" fill="#C8E0F4" opacity=".7"/>`;});
+      break;
+    case 'watch':
+      for(let r=0;r<3;r++)for(let c=0;c<4;c++){const x=630+c*212,y=120+r*140;s+=`<rect x="${x}" y="${y}" width="196" height="124" fill="#508AA8" opacity=".18" stroke="#508AA8" stroke-width="4"/>`;for(let l=y+12;l<y+124;l+=14)s+=`<line x1="${x+6}" y1="${l}" x2="${x+190}" y2="${l}" stroke="#9DD1F1" stroke-width="1" opacity=".18"/>`;}
+      s+=`<rect x="1054" y="260" width="196" height="124" fill="#BA1200" opacity=".22"/><circle cx="1152" cy="310" r="16" fill="#031927"/><path d="M1124 380 Q1128 336 1152 330 Q1176 336 1180 380Z" fill="#031927"/>`;
+      s+=`<rect x="600" y="600" width="900" height="40" fill="#508AA8" opacity=".5"/>`;
+      break;
+    case 'stage':
+      for(let x=620;x<1560;x+=88)s+=`<line x1="${x}" y1="0" x2="${x+((x/88)%2?14:-14)}" y2="700" stroke="#508AA8" stroke-width="3" opacity=".35"/>`;
+      s+=`<circle cx="900" cy="320" r="172" fill="none" stroke="#9DD1F1" stroke-width="6" opacity=".7"/><circle cx="900" cy="320" r="140" fill="none" stroke="#508AA8" stroke-width="2" opacity=".6"/>`;
+      [[900,148],[1072,320],[900,492],[728,320]].forEach(([x,y])=>{s+=`<polygon points="${starPts(x,y,34,10,4)}" fill="#9DD1F1"/>`;});
+      [[1260,160],[1380,240],[1300,330]].forEach(([x,y])=>{s+=`<circle cx="${x}" cy="${y}" r="42" fill="none" stroke="#C8E0F4" stroke-width="5" opacity=".5"/><circle cx="${x}" cy="${y}" r="8" fill="#C8E0F4" opacity=".5"/>`;});
+      s+=`<rect x="1100" y="600" width="160" height="100" fill="#508AA8" opacity=".35"/><rect x="1280" y="630" width="120" height="70" fill="#508AA8" opacity=".25"/>`;
+      break;
+    case 'hajin_room':
+      s+=`<rect x="640" y="140" width="260" height="220" fill="#9DD1F1" opacity=".12" stroke="#C8E0F4" stroke-width="5"/><line x1="770" y1="140" x2="770" y2="360" stroke="#C8E0F4" stroke-width="4" opacity=".6"/><line x1="640" y1="250" x2="900" y2="250" stroke="#C8E0F4" stroke-width="4" opacity=".6"/>`;
+      s+=`<rect x="120" y="560" width="340" height="140" fill="#508AA8" opacity=".35"/><rect x="140" y="530" width="110" height="44" rx="8" fill="#C8E0F4" opacity=".4"/>`;
+      s+=`<rect x="520" y="520" width="240" height="26" fill="#508AA8" opacity=".6"/><rect x="560" y="484" width="120" height="38" fill="#C8E0F4" opacity=".75"/>`;
+      s+=`<rect x="1190" y="180" width="160" height="430" fill="#9DD1F1" opacity=".12" stroke="#C8E0F4" stroke-width="6"/><line x1="1220" y1="220" x2="1260" y2="190" stroke="#C8E0F4" stroke-width="4" opacity=".6"/><rect x="1180" y="606" width="180" height="20" fill="#508AA8"/>`;
+      break;
+    case 'corridor':
+      [120,520,1080,1480].forEach(x=>{s+=`<rect x="${x-30}" y="80" width="60" height="620" fill="#508AA8" opacity=".3"/>`;});
+      [[150,490],[550,1050],[1110,1450]].forEach(([a,b])=>{s+=`<path d="M${a} 300 Q${(a+b)/2} 80 ${b} 300" fill="none" stroke="#508AA8" stroke-width="5" opacity=".5"/>`;});
+      s+=`<rect x="190" y="310" width="200" height="240" fill="#508AA8" opacity=".3" stroke="#C8E0F4" stroke-width="3"/><rect x="214" y="334" width="150" height="190" fill="#BA1200" opacity=".7"/><polygon points="${starPts(289,410,40,14,4)}" fill="#C8E0F4"/>`;
+      s+=`<ellipse cx="810" cy="650" rx="150" ry="40" fill="#508AA8" opacity=".3" stroke="#C8E0F4" stroke-width="4"/><rect x="796" y="560" width="28" height="90" fill="#C8E0F4" opacity=".5"/>`;
+      break;
+  }
+  return `<svg viewBox="0 0 1600 900" preserveAspectRatio="none">${base}${s}</svg>`;
+}
+
+/* ===================== 진실의 조각 ===================== */
+const EVID = {
+  key:{name:'의식실 열쇠', desc:'의식실에서 깨어났을 때 손에 쥐고 있던 황동 열쇠. 손잡이에 \'의식실\'이라고 새겨져 있다.'},
+  stage_light:{name:'켜져 있던 후광 장치', desc:'레오가 분명히 꺼뒀다는 무대 장치 하나가, 하진이 쓰러진 밤에 켜져 있었다.'},
+  tape_list:{name:'설교 녹음 목록', desc:'156주 분량의 설교 테이프. 원고는 하진이 쓰고, 교주의 목소리는 은결이 냈다. 선반 맨 끝 칸 하나가 비어 있다.'},
+  parting:{name:'바뀐 가르마', desc:'하진은 늘 오른쪽으로 가르마를 탔다. 그런데 지금은 머리카락이 교주처럼 왼쪽으로 넘어간다.'},
+  attendance:{name:'어제의 예배 인원', desc:'교단 역사상 가장 많은 신도가 기도한 날. 그날 밤 하진이 쓰러졌다.'},
+  camera:{name:'꺼진 카메라', desc:'어젯밤 11시 40분, 의식실 앞 감시 카메라가 4분 동안 꺼져 있었다.'},
+  mirror:{name:'거울 속의 얼굴', desc:'하진의 방 거울에 아주 잠깐, 검은 머리에 회색 눈을 한 다른 사람이 비쳤다.'},
+  notebook:{name:'하진의 수첩', desc:'마지막 페이지에 \'오늘 밤, 의식실. 확인해야 한다.\'라고 적혀 있다. 무엇을 확인하려 했는지는 쓰여 있지 않다.'},
+  finger:{name:'움직인 손가락', desc:'3년간 한 번도 움직이지 않던 성체의 손가락이, 하진이 있는 자리에서 움직였다.'},
+  unplugged:{name:'뽑혀 있던 플러그', desc:'어젯밤 빛났다는 후광 장치는 플러그가 콘센트에서 뽑혀 있었다. 레오가 직접 뽑아 두었다고 한다.'},
+  leo_log:{name:'레오의 작업 일지', desc:'3년 전 빛의 의식 날 페이지에 덧칠로 지운 문장이 있다. 「장치 가동 없음. 그런데, 빛났다.」'},
+  footage:{name:'장치실 영상', desc:'어젯밤 11시 41분, 아무도 없는 장치실에서 후광 장치가 4분 동안 빛났다. 의식실 앞 카메라가 꺼진 시간과 같다.'},
+  meter:{name:'장치실 전력 계량기', desc:'도철의 장부에 따르면, 어젯밤 무대 장치실의 전력 사용량은 0이었다.'},
+  candles:{name:'저절로 켜진 촛불', desc:'리허설 중 하진이 교주의 손짓을 하자, 대예배당의 촛불 수백 개가 한꺼번에 켜졌다. 레오는 아무 장치도 켜지 않았다.'},
+  album:{name:'백 년의 사진첩', desc:'1925, 1958, 1987, 2016년의 교주 사진 네 장. 얼굴은 모두 다르지만, 왼손을 위로 손을 모으고 고개를 오른쪽으로 기울이는 버릇이 같다.'},
+  old_tape:{name:'1958년 설교 테이프', desc:'휘명당 시절의 설교. 목소리는 늙은 남자인데, 문장과 숨 쉬는 자리까지 지금의 설교와 똑같다.'},
+  lining:{name:'예복 안감의 이름', desc:'예복 안감에 같은 바느질로 수놓인 이름 넷. 윤명수(1925), 한기철(1958), 서도윤(1987), 설유(2016). 성이 모두 다르다.'},
+  deed_sign:{name:'1925년 땅 문서', desc:'휘명당이 본부 땅을 산 문서. 윤명수의 서명이 3년 전 교주 설유의 서명과 같은 필체다.'},
+  my_signature:{name:'하진이 쓴 서명', desc:'\'하진\'이라고 쓰려던 손이 저절로 \'설유\'라는 서명을 썼다. 배운 적도 연습한 적도 없는데, 백 년 전 땅 문서와 같은 필체다.'},
+  tears:{name:'성체의 눈물 자국', desc:'성체의 오른쪽 뺨에 남은 마른 눈물 자국. 아린에 따르면 교주는 3년 전에도, 그 전에도 운 적이 없다.'},
+  circle:{name:'의식실 바닥의 의식진', desc:'중앙의 별에서 뻗은 여섯 원에 측근 여섯의 이름이 새겨져 있다. 3년 전 의식 이후, 유하진의 원만 검게 그을려 있다.'},
+  measure:{name:'그릇 적합도 노트', desc:'5년 전 교주가 아린에게 받아 적게 한 측근 여섯의 치수 기록. 마지막 칸 제목은 \'그릇 적합도\'. 유하진 ◎, 하은결 ○, 나머지는 △ 또는 ×.'},
+  tap:{name:'두 번 두드리는 손가락', desc:'새벽 3시 12분, 성체가 집게손가락으로 팔걸이를 두 번씩 두드렸다. 원고를 기다릴 때 하진이 하던 버릇이다.'},
+  attend_ledger:{name:'예배 인원 장부', desc:'도철이 3년간 센 예배 인원. 1주년(21,000명), 2주년(34,000명), 3주년 전야(42,000명)에 붉은 동그라미. 세 번 모두 그날 밤 의식실에 이변이 있었다고 한다.'},
+  care_log:{name:'성체 간호 일지', desc:'아린의 기록. 1주년 밤 체온 39도, 2주년 밤 맥박 두 배, 3주년 전야 손가락 움직임. 그 세 날 말고는 3년 내내 아무 일도 없었다.'},
+  chant_log:{name:'방송 기록부', desc:'1주년, 2주년, 3주년 전야 예배에만 신도 전원이 교주의 이름을 108번 부르는 \'호명 기도\'가 있었다. 원고 작성자 칸: 원고 없음, 즉흥(하은결).'},
+  prayer_surge:{name:'호명 기도의 밤', desc:'저녁 예배에서 3천 명이 교주의 이름을 부르자 하진의 몸이 뜨거워지고 빛이 났다. 머릿속에서 "더 불러라"라는 목소리가 들렸다.'},
+  return_verse:{name:'귀환장의 구절', desc:'경전 마지막 장 \'귀환장\'은 공개된 적 없는 장이다. 은결은 원고에 없는 그 구절을 막힘없이 읊었다.'},
+  passage:{name:'녹음실의 비밀 통로', desc:'녹음실 방음재 뒤에 의식실로 곧장 이어지는 좁은 통로가 있다. 교주만 알던 길이라고 한다.'},
+  practice_tape:{name:'사라진 릴 테이프', desc:'통로 안에 숨겨져 있던 3년 전 테이프. 은결이 교주의 목소리로 의식 주문을 연습하는데, \'그릇의 이름\' 자리에 자기 이름 \'하은결\'을 넣었다.'},
+  rite_copy:{name:'하진의 의식문 사본', desc:'3년 전 교주가 하진에게 맡긴 빛의 의식 주문 사본. \'그릇의 이름은 유하진\'이라고 적혀 있다. 하진이 서랍 밑에 숨겨 두었다.'},
+  leo_voice:{name:'레오의 증언', desc:'3년 전 의식 날 밤, 의식실 쪽에서 들린 주문 속에 교주의 목소리와 다른, 젊은 여자 목소리가 섞여 있었다.'},
+  forged_sign:{name:'은결이 받아 간 결재 서류', desc:'3년 동안 교주 서명이 필요한 서류는 은결이 받아 갔다. 돌아온 서명은 흉내가 아니라, 1925년 땅 문서와 같은 손의 필체였다.'},
+  cue_sheet:{name:'휘광제 큐시트', desc:'은결이 어젯밤 레오에게 넘긴 수정본. \'호명 기도 108번째 — 특수효과: 장치 낙하 (작성: 하은결)\'. 레오는 그런 효과를 만든 적이 없다.'},
+  rigged:{name:'바꿔 단 밧줄', desc:'천장의 후광 장치를 붙든 새 밧줄. 고정 핀이 빠져 있고, 걸쇠에 감긴 가는 철사가 벽 구멍을 지나 녹음실 쪽으로 이어진다.'},
+  lullaby_mem:{name:'오빠의 자장가', desc:'은결이 부르던 자장가. 처음 들었는데 다음 소절을, 그리고 은결이 끝내 부르지 않은 마지막 소절까지 알고 있다.'},
+  note:{name:'교주의 일기장', desc:'정원의 마른 분수 속에 누군가 최근에 묻어 둔 일기장. 3년 전 빛의 의식 전날 밤의 마지막 글: 「측근 여섯 중에 이단자가 있다. 누군가 나를 배반하려 한다. 의식 날까지, 아무도 믿지 마라.」'}
+};
+
+const SECRETS = [
+  {route:'leo', title:'비밀 ① 트릭이 없는 기적', text:'교주에게는 진짜 힘이 있었다. 천휘교의 기적 중 일부는 트릭이 아니었다.'},
+  {route:'sian', title:'비밀 ② 백 년의 사진첩', text:'교주는 한 사람이 아니었다. 하나의 영혼이 몸을 갈아타며 백 년 넘게 살아왔다.'},
+  {route:'arin', title:'비밀 ③ 성체의 치수', text:'측근 여섯은 다음 그릇 후보였다. 몸을 빼앗긴 영혼은 옛 몸에 갇힌다.'},
+  {route:'docheol', title:'비밀 ④ 기도의 장부', text:'신도들의 기도가 교주의 영혼을 깨우는 연료였다.'},
+  {route:'eungyeol', title:'비밀 ⑤ 목소리의 주인', text:'3년 전 의식은 은결이 스스로 교주가 되려고 주문을 바꿔 방해한 것이었다. 찢어진 의식에 교주의 기억이 흩어졌고, 일부는 은결에게 흘러갔다.'}
+];
+const ENDINGS = [
+  {id:'happy', title:'해피엔딩 · 빛을 끄는 날'},
+  {id:'bad', title:'배드엔딩 · 새로운 교주'},
+  {id:'hidden', title:'히든엔딩 · 오빠의 자장가'}
+];
+
+/* ===================== 시나리오 ===================== */
+const N=t=>({n:t});
+const L=(s,e,t)=>({s,e,t});
+const H=t=>({s:'hajin',t});
+
+const SCENES = {
+  prologue:[
+    {bg:'black'},
+    N('……종소리가 울린다. 세 번. 네 번.'),
+    N('누군가 아주 멀리서 내 이름을 부르고 있다.\n그런데 그 이름이 무엇인지, 나는 알지 못한다.'),
+    {bg:'ritual'},{day:3},
+    N('눈을 뜨자, 차가운 돌바닥이 뺨에 닿아 있었다.'),
+    N('촛불 수십 개가 일렁이는 방. 정면에는 짙은 장막이 드리워져 있고,\n그 너머로 누군가 가부좌를 튼 채 앉아 있는 실루엣이 보인다.'),
+    H('……여기가, 어디지.'),
+    N('몸을 일으키려다, 손에 무언가 쥐어져 있다는 걸 알았다.\n오래된 황동 열쇠. 손잡이에 \'의식실\'이라고 새겨져 있다.'),
+    {ev:'key'},
+    N('그때, 문이 거칠게 열렸다.'),
+    L('docheol','angry','야! 여기 있다! 하진이 여기 쓰러져 있어!'),
+    L('arin','shocked','하진 씨! 세상에, 얼굴이 종잇장 같잖아요. 누가 불 좀 더 켜요!'),
+    L('leo','smile','쉿, 쉿. 다들 진정. 관객이 많으면 주인공이 긴장하는 법이야.'),
+    L('eungyeol','neutral','하진 씨, 제 목소리 들려요? 천천히 숨 쉬어요. 괜찮아요.'),
+    L('sian','suspicious','……의식실 문은 어젯밤 잠겨 있었다. 어떻게 들어왔지?'),
+    {p:null},
+    N('다섯 개의 얼굴이 나를 내려다보고 있다. 모두 나를 \'하진\'이라고 부른다.'),
+    N('그런데 나는, 그들 중 누구의 이름도 기억나지 않는다.'),
+    {c:[
+      {t:'"……당신들은 누구죠?"', set:'honest', go:'pro_a'},
+      {t:'"괜찮아요. 잠깐 어지러웠을 뿐이에요."', set:'pretend', go:'pro_b'}
+    ]}
+  ],
+  pro_a:[
+    L('docheol','shocked','뭐? 지금 장난하냐?'),
+    L('eungyeol','sad','하진 씨…… 정말 아무것도 기억 안 나요?'),
+    L('sian','neutral','기억상실이라. 타이밍 한번 기가 막히군. 휘광제가 사흘 남았는데.'),
+    L('leo','smile','자자, 이건 연출로 치자고. 기억 잃은 대언자! 극적이잖아. 내가 한 명씩 소개해 주지.'),
+    {go:'pro_intro'}
+  ],
+  pro_b:[
+    L('sian','suspicious','거짓말. 지금 네 눈이 우리 얼굴을 하나씩, 처음 보는 것처럼 훑었다.'),
+    H('……'),
+    L('arin','sad','하진 씨, 숨기지 마요. 우린 같은 비밀을 진 사이잖아요.'),
+    L('leo','smile','좋아, 그럼 처음부터. 첫 공연 전엔 원래 출연진 소개를 하는 법이지.'),
+    {go:'pro_intro'}
+  ],
+  pro_intro:[
+    L('leo','smile','진레오. 이 교단의 \'기적\' 담당이지. 후광, 떠오르는 성배, 저절로 켜지는 촛불. 전부 내 작품이야.'),
+    L('eungyeol','smile','하은결이에요. 녹음실에 있어요. 하진 씨는 늘 제 목소리를 \'교주님 목소리\'라고 불렀죠.'),
+    L('arin','neutral','모아린. 의상과 분장 담당. ……그리고, 저분을 돌봐요.'),
+    {p:null},
+    N('아린의 시선이 장막 너머의 실루엣으로 향한다.'),
+    L('docheol','neutral','강도철. 돈 받으러 왔다가 돈 세는 사람이 됐다. 헌금, 장부, 귀찮은 기자들 입막음. 그게 내 일이야.'),
+    L('sian','neutral','백시안. 감시실. 교단 안에서 새는 게 있으면 막는다. ……지금은 네가 새는 구멍처럼 보이는군.'),
+    H('그럼…… 장막 뒤에 계신 분은 누구죠?'),
+    {p:null},
+    N('짧은 침묵. 다섯 명이 서로를 바라본다.'),
+    L('eungyeol','neutral','그건 회의 때 얘기해요. 지금은 일단 좀 쉬어요.'),
+    L('docheol','neutral','저녁에 대예배당에서 회의다. 그 전에 머리 좀 식혀. 본부 안은 마음대로 돌아다녀도 돼.'),
+    L('sian','suspicious','단, 의식실은 다시 잠근다. 그 열쇠는 내놔.'),
+    {c:[
+      {t:'열쇠를 건넨다.', set:'keyGiven', go:'pro_key_give'},
+      {t:'"……어디서 잃어버린 것 같아요."', set:'keyHidden', go:'pro_key_hide'}
+    ]}
+  ],
+  pro_key_give:[
+    L('sian','neutral','……받았다.'),
+    {p:null},
+    N('열쇠가 손을 떠나는 순간, 이유 모를 아쉬움이 스쳤다.'),
+    {go:'pro_end'}
+  ],
+  pro_key_hide:[
+    L('sian','suspicious','그래. 그럼 그렇다고 해두지.'),
+    {p:null},
+    N('시안의 눈이 내 주머니에 잠시 머물다 떨어졌다.'),
+    {go:'pro_end'}
+  ],
+  pro_end:[
+    N('측근들이 하나둘 의식실을 떠난다. 마지막으로 나간 사람은 아린이었다.\n문을 닫기 전, 그녀는 장막 쪽으로 고개를 깊이 숙였다.'),
+    {bg:'hajin_room'},
+    N('……정신을 차리고 보니, \'하진의 방\'이라는 곳에 와 있었다.'),
+    N('지도를 눌러 본부 안을 이동할 수 있다. 빛나는 별 표시는 조사할 수 있는 곳이고, 사람을 누르면 말을 걸 수 있다.'),
+    {explore:'p1'}
+  ],
+
+  /* --- 하진의 방 --- */
+  h_mirror:[
+    N('벽에 걸린 낡은 전신 거울.'),
+    N('하진의 얼굴이 비친다. 낯선 얼굴. 이게 내 얼굴이라고 한다.'),
+    N('눈을 깜빡인 순간—'),
+    {p:'seolyu', e:'neutral'},
+    N('거울 속에, 다른 사람이 서 있었다.\n검은 머리. 회색 눈. 표정 없는 얼굴이 나를 똑바로 바라본다.'),
+    H('……!'),
+    {p:null},
+    N('다시 깜빡이자, 거울에는 하진만 남아 있었다.'),
+    {ev:'mirror'}
+  ],
+  h_notebook:[
+    N('책상 위의 가죽 수첩. 하진의 것이다.'),
+    N('대부분은 설교 원고 메모와 일정이다. 꼼꼼하고 단정한 글씨.'),
+    N('그런데 마지막 페이지만 글씨가 흔들려 있다.'),
+    {note:'오늘 밤, 의식실.\n확인해야 한다.'},
+    H('확인해야 한다니…… 뭘?'),
+    {ev:'notebook'}
+  ],
+  h_bed:[N('반듯하게 정리된 침대. 어젯밤 여기서 잔 흔적은 없다.')],
+  h_window:[N('창 너머로 본부 앞 광장이 보인다. 벌써부터 휘광제 천막을 세우는 신도들이 개미처럼 움직이고 있다.')],
+
+  /* --- 회랑 --- */
+  c_board:[
+    N('게시판에 붙은 붉은 포스터. 별 모양 후광 아래 큰 글씨가 적혀 있다.'),
+    {note:'교주님의 빛을 마주하는 날\n3주년 휘광제'},
+    N('날짜 옆에 누군가 빨간 펜으로 \'D-3\'이라고 적어 두었다.')
+  ],
+  c_fountain:[N('물이 마른 분수. 바닥에 동전 대신 작은 종이학이 잔뜩 깔려 있다. 신도들이 접어 놓고 간 소원일까.')],
+
+  /* --- 대예배당 --- */
+  ch_curtain:[N('단상의 붉은 장막. 휘광제 날, 저 장막이 걷히고 교주가 모습을 드러낸다고 한다.'),H('……정말로?')],
+  ch_glass:[N('둥근 스테인드글라스에 별 모양 후광을 두른 인물이 그려져 있다. 얼굴 부분만 투명한 유리로 비어 있다.')],
+  ch_pews:[N('끝없이 이어진 신도석. 도철 말로는 휘광제 날엔 바깥 광장까지 사람이 들어찬다고 한다.')],
+
+  /* --- 녹음실 --- */
+  s_reels:[N('릴 테이프마다 날짜가 적혀 있다. 하나, 둘…… 156개.'),N('그런데 선반 맨 끝 칸 하나가 비어 있다. 먼지 자국만 네모나게 남아 있다.')],
+  s_mic:[N('낡은 리본 마이크. 손잡이 부분이 반들반들하게 닳아 있다. 3년 동안 매주 이 앞에서 \'교주\'가 말했던 것이다.')],
+
+  /* --- 의상실 --- */
+  d_robe:[N('마네킹에 입혀진 교주의 예복. 검은 천 안쪽으로 붉은 안감이 보인다.'),N('소매 길이를 가늠해 보니, 하진의 팔 길이와 거의 같다.')],
+  d_notes:[N('두꺼운 치수 노트가 놓여 있다.'),N('손을 뻗자, 아린이 말없이 노트를 덮어 자기 쪽으로 끌어당겼다.')],
+
+  /* --- 회계실 --- */
+  a_safe:[N('커다란 금고. 위에 빈 컵라면 용기가 세 개 놓여 있다.'),L('docheol','angry','보지 마. 돈은 보면 줄어.'),{p:null}],
+  a_ledgers:[N('장부가 탑처럼 쌓여 있다. 맨 위 장부의 표지에는 \'헌금\'이 아니라 \'예배 인원\'이라고 적혀 있다.')],
+
+  /* --- 감시실 --- */
+  w_monitors:[N('흑백 모니터 열두 대. 그중 하나에 의식실 내부가 비친다.'),N('장막 너머 성체의 실루엣. 미동도 없다.')],
+
+  /* --- 무대 장치실 --- */
+  st_halo:[N('거대한 원형 장치. 거울 조각들이 별 모양으로 배열돼 있다. 빛을 받으면 장막 뒤 실루엣 주위로 후광이 퍼지는 구조다.')],
+  st_pulley:[N('도르래와 밧줄. 성배를 공중에 띄우는 장치일까. 밧줄 하나가 새것으로 교체돼 있다.')],
+
+  /* --- 잠긴 의식실 --- */
+  locked_ritual:[N('의식실 문은 굳게 잠겨 있다. 문틈으로 촛불 냄새가 희미하게 새어 나온다.')],
+
+  /* --- 인물 대화: 1일차 --- */
+  leo_p1:[
+    {bg:'stage'},
+    N('밧줄과 도르래, 반쯤 분해된 장치들이 어지럽게 널려 있다.'),
+    L('leo','smile','오, 우리 대언자님 납셨네. 구경 왔어? 원래 마술사는 무대 뒤를 안 보여주는데, 넌 공범이니까 특별히.'),
+    L('leo','neutral','저게 휘광제 메인 장치야. 장막 뒤에서 빛이 터지면, 교주님 실루엣 둘레로 후광이 퍼지지. 거울 서른두 장, 조명 열두 개.'),
+    H('이걸로 3년 동안 사람들을 속인 거예요?'),
+    L('leo','smile','속였다니, 섭섭하게. 난 사람들이 보고 싶은 걸 보여줬을 뿐이야. 그게 마술이고, 그게 종교지.'),
+    L('leo','neutral','……근데 하진. 어젯밤에 여기 왔었어?'),
+    H('기억이 안 나요.'),
+    L('leo','neutral','그렇겠지. 장치 하나가 켜져 있었거든. 난 분명히 끈 걸 확인했는데.'),
+    L('leo','smile','뭐, 내가 늙었나 보지! 하하.'),
+    {p:null},
+    N('웃음소리가 장치실 천장에 부딪혀, 이상하게 공허하게 울렸다.'),
+    {ev:'stage_light'}
+  ],
+  leo_again:[L('leo','smile','공연 전엔 무대 뒤가 제일 바쁜 법이지. 회의 때 보자고, 대언자님.'),{p:null}],
+
+  eungyeol_p1:[
+    {bg:'studio'},
+    N('방음재로 덮인 벽. 오래된 릴 테이프가 빼곡한 선반.'),
+    L('eungyeol','smile','하진 씨, 와줬네요. 몸은 좀 어때요?'),
+    L('eungyeol','neutral','여기서 매주 교주님 설교를 녹음해요. 오늘로 156주째. 하진 씨가 원고를 가져오면, 제가 교주님 목소리로 읽는 거죠.'),
+    H('교주님 목소리를…… 들려줄 수 있어요?'),
+    L('eungyeol','neutral','그럼요.'),
+    N('은결이 눈을 감았다. 숨을 한 번 고르고—'),
+    L('eungyeol','smile','「빛은 떠나지 않는다. 다만 너희가 눈을 감았을 뿐이다.」'),
+    {p:null},
+    N('소름이 돋았다. 처음 듣는 목소리인데, 이상하게도 그다음 문장이 혀끝에서 맴돈다.'),
+    {c:[
+      {t:'떠오르는 문장을 말해 본다.', set:'echo1', go:'eun_echo'},
+      {t:'가만히 듣는다.', go:'eun_quiet'}
+    ]}
+  ],
+  eun_echo:[
+    H('「……눈을 뜨는 날, 나는 거기 있으리라.」'),
+    L('eungyeol','shocked','……!'),
+    L('eungyeol','smile','……어머. 원고를 외우고 있었네요. 역시 하진 씨.'),
+    N('웃는 얼굴이었다. 그런데 마이크를 쥔 은결의 손가락 마디가 하얗게 질려 있었다.'),
+    {go:'eun_end'}
+  ],
+  eun_quiet:[
+    L('eungyeol','smile','3년 동안 이 목소리가 사람들을 지켰어요. 교주님이 안 계셔도요.'),
+    {go:'eun_end'}
+  ],
+  eun_end:[
+    L('eungyeol','neutral','휘광제 때 하진 씨는 무대에서 교주님 말씀을 전하는 역할이에요. 제가 장막 뒤에서 목소리를 낼 테니까, 하진 씨는 입 모양만 맞추면 돼요.'),
+    L('eungyeol','smile','연습, 같이 해요. 저는 늘 여기 있으니까.'),
+    {p:null},
+    {ev:'tape_list'}
+  ],
+  eungyeol_again:[L('eungyeol','smile','목이 아직 덜 풀렸어요. 회의 끝나고 연습해요, 하진 씨.'),{p:null}],
+
+  arin_p1:[
+    {bg:'dressing'},
+    N('마네킹에 입혀진 교주의 예복이 촛불에 은은하게 반짝인다.'),
+    L('arin','neutral','……앉아요. 머리가 엉망이에요. 대언자가 그런 꼴로 돌아다니면 안 돼요.'),
+    {p:null},
+    N('대답도 듣지 않고, 아린은 내 머리를 빗기 시작했다.'),
+    L('arin','neutral','저 예복, 교주님 거예요. 3년 동안 매일 손질했어요. 장막 뒤 실루엣이 조금이라도 흐트러지면 안 되니까.'),
+    H('장막 뒤에 계신 분…… 교주님이에요?'),
+    L('arin','sad','……회의 때 듣기로 했잖아요.'),
+    {p:null},
+    N('빗질이 잠시 멈췄다.'),
+    L('arin','shocked','……이상하네.'),
+    H('뭐가요?'),
+    L('arin','neutral','하진 씨는 늘 오른쪽으로 가르마를 탔어요. 근데 지금 머리카락이 자꾸 왼쪽으로 넘어가요. ……교주님처럼.'),
+    L('arin','smile','기분 탓이겠죠. 다 됐어요. 이제 좀 사람 같네요.'),
+    {p:null},
+    {ev:'parting'}
+  ],
+  arin_again:[L('arin','neutral','머리 만지지 마요. 겨우 정리해 놨으니까.'),{p:null}],
+
+  docheol_p1:[
+    {bg:'accounts'},
+    N('장부가 산처럼 쌓인 방. 금고 위에 빈 컵라면 용기가 세 개.'),
+    L('docheol','angry','왔냐? 앉아. 아니, 거기 말고. 거긴 영수증 자리야.'),
+    L('docheol','neutral','기억이 없다며. 그럼 내가 정리해 주지. 이 교단 신도가 4만 2천이다. 한 달 헌금이 얼만지 알면 너 기절한다.'),
+    L('docheol','neutral','그 돈이 전부 \'교주님이 살아 계신다\'는 믿음 위에 서 있어. 그게 무너지면? 4만 명이 들고 일어나. 우리 여섯은 끝장이고.'),
+    H('그래서 숨긴 거군요.'),
+    L('docheol','angry','숨긴 게 아니라 \'관리\'한 거다. 말 똑바로 해.'),
+    L('docheol','neutral','……근데 말이야. 어제 예배 인원이 역대 최고였다. 3주년이라고 다들 몰려와서. 기도 소리에 건물이 다 울리더라.'),
+    L('docheol','suspicious','그리고 그날 밤 네가 쓰러졌지. 우연이겠지만, 난 숫자가 겹치는 게 싫다.'),
+    {p:null},
+    {ev:'attendance'}
+  ],
+  docheol_again:[L('docheol','angry','바쁘다. 회의 때 봐. 아, 나가면서 문 닫아. 돈 냄새 새니까.'),{p:null}],
+
+  sian_p1:[
+    {bg:'watch'},
+    N('벽 한 면을 채운 모니터에 본부 곳곳이 흑백으로 비친다.'),
+    L('sian','neutral','왔군. 앉지 마. 금방 끝난다.'),
+    L('sian','suspicious','하진. 너는 커피에 설탕을 몇 개 넣지?'),
+    {c:[
+      {t:'"두 개요."', go:'sian_two'},
+      {t:'"……설탕은 안 넣어요."', set:'sianNoticed', go:'sian_none'}
+    ]}
+  ],
+  sian_two:[
+    L('sian','neutral','틀렸다. 하진은 블랙만 마신다. ……기억이 없다는 건 사실인가 보군.'),
+    {go:'sian_end'}
+  ],
+  sian_none:[
+    L('sian','suspicious','맞다. ……기억이 없다면서, 그건 어떻게 알았지?'),
+    H('그냥…… 그렇게 느꼈어요.'),
+    L('sian','neutral','흥미롭군. 몸이 기억하는 건지, 아니면.'),
+    {go:'sian_end'}
+  ],
+  sian_end:[
+    L('sian','neutral','어젯밤 11시 40분, 의식실 앞 카메라가 4분 동안 꺼졌다. 다시 켜졌을 땐 문이 닫혀 있었고, 아침에 네가 안에서 발견됐지.'),
+    L('sian','suspicious','누군가 카메라를 껐다. 너일 수도 있고, 아닐 수도 있지.'),
+    {p:null},
+    {ev:'camera'}
+  ],
+  sian_again:[L('sian','neutral','볼일 끝났으면 나가. 모니터 가리지 말고.'),{p:null}],
+
+  /* --- 회의 --- */
+  p1_done:[
+    {p:null},
+    N('어느새 창밖이 어두워졌다. 대예배당에서 회의가 시작될 시간이다.'),
+    {bg:'chapel'},
+    N('신도들이 모두 돌아간 저녁의 대예배당.\n여섯 명이 단상 앞에 둥글게 앉았다. 붉은 장막은 여전히 닫혀 있다.'),
+    L('eungyeol','neutral','하진 씨가 기억을 잃었으니까, 처음부터 말할게요.'),
+    L('eungyeol','sad','교주님은 3년 전 \'빛의 의식\'을 치르던 밤, 의식실에서 쓰러지셨어요. 숨은 쉬시는데, 깨어나지 않으셨어요. 그 뒤로 지금까지.'),
+    L('docheol','neutral','그걸 공개했으면 교단은 그날로 끝이었지. 그래서 우리가 정했다. 교주님은 \'깊은 명상에 드셨다\'고.'),
+    L('leo','smile','기적은 내가.'),
+    L('eungyeol','neutral','목소리는 제가.'),
+    L('arin','neutral','모습은 제가.'),
+    L('docheol','neutral','돈은 내가.'),
+    L('sian','neutral','의심은 내가 지웠다.'),
+    L('eungyeol','smile','그리고 그 말씀을 사람들 앞에서 전한 게 하진 씨였어요. 우리 여섯이 함께 3년을 버텼어요.'),
+    H('그럼 장막 뒤에 앉아 계신 분은…… 교주님의 몸이군요.'),
+    L('arin','sad','네. 우린 \'성체\'라고 불러요. 제가 매일 화장하고, 앉혀 드려요. 신도들 눈에는 명상 중인 교주님으로 보이게.'),
+    {c:[
+      {t:'"그건…… 너무 잔인해요."', go:'meet_cruel'},
+      {t:'"그래서 3년을 버틸 수 있었군요."', go:'meet_ok'}
+    ]}
+  ],
+  meet_cruel:[
+    L('arin','sad','알아요. ……알아요.'),
+    L('docheol','angry','그럼 4만 명을 길바닥에 내놨어야 했냐? 다들 여기 말고는 갈 데가 없는 사람들이야.'),
+    {go:'meet_2'}
+  ],
+  meet_ok:[
+    L('leo','smile','그렇지! 역시 우리 대언자, 기억은 없어도 이해는 빨라.'),
+    L('arin','sad','……칭찬받을 일은 아니에요.'),
+    {go:'meet_2'}
+  ],
+  meet_2:[
+    L('sian','neutral','문제는 지금이다. 휘광제가 사흘 남았다. 4만 명이 교주를 보러 온다. 그리고 대언자는 기억을 잃었지.'),
+    L('sian','suspicious','게다가 하진이 왜 의식실에서 쓰러져 있었는지, 아무도 설명을 못 해.'),
+    L('docheol','angry','설명은 무슨. 그냥 과로야. 의식실엔 아무도 못 들어가. 열쇠는 밤새 내 서랍에 있었으니까.'),
+    {p:null},
+    N('……정말 그럴까? 지금까지 보고 들은 것과 맞지 않는 말이 있다.'),
+    N('누군가의 말이 사실과 어긋날 때는, \'심문\'으로 그 말을 반박할 수 있다.'),
+    {trial:'tutorial'}
+  ],
+  tut_success:[
+    {if:'keyGiven', then:'tut_s_given', else:'tut_s_hidden'}
+  ],
+  tut_s_given:[
+    H('열쇠가 밤새 서랍에 있었다면, 아침에 제 손에 쥐어져 있던 이 열쇠는 뭐죠?'),
+    L('docheol','shocked','……뭐?'),
+    L('sian','neutral','사실이다. 아침에 하진이 쥐고 있던 걸 내가 직접 받았다. 의식실 열쇠다.'),
+    {go:'tut_after'}
+  ],
+  tut_s_hidden:[
+    H('열쇠가 밤새 서랍에 있었다면…… 이건 뭐죠?'),
+    N('나는 주머니에서 황동 열쇠를 꺼냈다.'),
+    L('docheol','shocked','……그건, 의식실 열쇠……!'),
+    L('sian','suspicious','역시 갖고 있었군. 잃어버렸다더니.'),
+    H('……미안해요. 왠지 내놓기가 싫었어요.'),
+    {go:'tut_after'}
+  ],
+  tut_after:[
+    L('docheol','sad','……어제 저녁에 서랍 열었을 땐 분명히 있었어. 그 뒤로 확인은…… 안 했다.'),
+    L('eungyeol','neutral','그럼 누군가 열쇠를 꺼내 하진 씨에게 줬거나, 하진 씨가 직접 가져갔다는 거네요.'),
+    {p:null},
+    N('하진의 수첩에는 \'오늘 밤, 의식실. 확인해야 한다\'라고 적혀 있었다.\n하진은 대체 무엇을 확인하려 했던 걸까.'),
+    N('그때였다.'),
+    N('장막 너머에서, 아주 작은 소리가 났다. 천이 스치는 소리.'),
+    L('arin','shocked','……방금, 들었어요?'),
+    {p:null},
+    N('아린이 장막으로 달려갔다. 그리고 그 자리에 얼어붙었다.'),
+    L('arin','shocked','손가락이…… 움직였어요. 교주님 손가락이요. 3년 동안 한 번도……'),
+    L('docheol','shocked','뭐?!'),
+    L('leo','shocked','이건 내 장치가 아니야. 맹세해.'),
+    L('eungyeol','shocked','……깨어나시는 거예요. 교주님이.'),
+    {p:null},
+    N('은결의 목소리가 떨렸다. 기쁨인지, 두려움인지 알 수 없었다.'),
+    N('나는 장막 너머의 실루엣을 바라보았다.\n그리고 이상하게도, 그 실루엣이 나를 보고 있다는 느낌이 들었다.'),
+    {ev:'finger'},
+    {go:'night'}
+  ],
+  night:[
+    {bg:'hajin_room'},
+    N('그날 밤. 하진의 방.'),
+    N('잠이 오지 않았다. 거울 쪽은 되도록 보지 않으려 애썼다.'),
+    N('바람이라도 쐬려고 방을 나섰다. 발이 저절로 회랑 끝의 정원으로 향했다.'),
+    {bg:'corridor'},
+    N('달빛 아래 물이 마른 분수. 바닥에는 신도들이 접어 둔 종이학이 수북하다.'),
+    N('그 종이학 더미 아래로, 검은 천에 싸인 무언가가 비죽 나와 있었다.'),
+    N('천을 풀자 낡은 가죽 일기장이 나왔다. 표지에 금박으로 찍힌 별 모양 후광. 천휘교의 문장이다.'),
+    N('비를 맞은 흔적이 없다. 누군가 최근에 여기 묻어 둔 것이다.'),
+    N('마지막으로 쓰인 페이지는 3년 전, 빛의 의식 전날 밤이었다.'),
+    {note:'측근 여섯 중에 이단자가 있다.\n누군가 나를 배반하려 한다.\n의식 날까지, 아무도 믿지 마라.'},
+    {ev:'note'},
+    N('기울어진 단정한 글씨. 교주의 일기장이다.'),
+    H('교주님은…… 쓰러지기 전부터 우리 중 누군가를 의심하고 있었어.'),
+    N('레오, 은결, 아린, 도철, 시안. 오늘 하루 그들이 보인 수상한 모습이 머릿속을 스친다.'),
+    N('그리고 누군가 이 일기장을, 내가 찾도록 여기 묻어 두었다.'),
+    N('모두를 한꺼번에 파고들 수는 없다. 가장 의심스러운 사람부터, 곁에 붙어서 진실을 캐내야 한다.'),
+    {select:true}
+  ],
+
+
+  /* ===================== 진레오 루트 ===================== */
+  leo_r1:[
+    {day:2},{bg:'stage'},
+    N('휘광제 D-2. 아침.'),
+    N('무대 장치실 문을 열자, 레오가 사다리에 거꾸로 매달린 채 나를 맞았다.'),
+    L('leo','smile','좋은 아침, 대언자님! 아, 이건 신경 쓰지 마. 시선을 끄는 건 마술사의 기본기거든.'),
+    {p:null},
+    N('레오는 가볍게 몸을 뒤집어 바닥에 내려섰다. 착지 소리조차 나지 않았다.'),
+    L('leo','neutral','자, 본론. 넌 사흘 뒤 4만 명 앞에 선다. 기억은 없지. 그러니까 오늘부터 내가 무대 위에서 살아남는 법을 가르쳐 줄 거야.'),
+    H('살아남는 법이요?'),
+    L('leo','smile','사람들은 네 말을 듣지 않아. 네 손을 보지. 손이 확신에 차 있으면, 말이 좀 틀려도 기적이 되는 거야.'),
+    L('leo','neutral','……그리고 하나 더. 어젯밤 얘기. 날 의심하는 이유가 그거잖아? 켜져 있던 장치. 내가 만든 적 없는 빛.'),
+    {c:[
+      {t:'"3년 전에도 봤다고 했죠."', go:'leo_r1_a'},
+      {t:'"정말 당신 장치가 아니었어요?"', go:'leo_r1_b'}
+    ]}
+  ],
+  leo_r1_a:[
+    L('leo','sad','……기억력 좋네. 기억상실 맞아?'),
+    L('leo','neutral','그래, 봤어. 근데 그 얘긴 나중에. 증거부터 모으자고. 마술사는 증명 안 된 이야기는 안 믿거든.'),
+    {go:'leo_r1_c'}
+  ],
+  leo_r1_b:[
+    L('leo','angry','내 장치였으면 좋겠어. 진심으로.'),
+    L('leo','neutral','그러니까 확인하자고. 내 장치가 왜, 어떻게 켜졌는지. 증명되면 나도 마음 편히 잘 수 있겠지.'),
+    {go:'leo_r1_c'}
+  ],
+  leo_r1_c:[
+    L('leo','smile','조사 시작이다, 조수! 장치부터 보고, 감시실이랑 회계실도 들러 봐. 화면이랑 숫자는 거짓말을 못 하니까.'),
+    {p:null},
+    N('레오와 함께 어젯밤의 빛을 조사하자. 장치실의 별 표시부터 살펴보고, 지도로 다른 곳에도 가 볼 수 있다.'),
+    {explore:'L1'}
+  ],
+  L1_leo:[L('leo','neutral','장치부터 보자고. 저 후광 장치. 어젯밤 켜져 있던 게 바로 저거야. 작업대 위 일지도 봐도 돼.'),{p:null}],
+  L_halo:[
+    N('어젯밤 켜져 있었다는 후광 장치. 거울 조각 서른두 장이 별 모양으로 배열돼 있다.'),
+    L('leo','neutral','조명은 장치 뒤쪽 배전반에 연결돼. 스위치를 올리면 빛이 들어오지.'),
+    {p:null},
+    N('장치 뒤로 돌아가 보았다. 굵은 전원 케이블이 바닥에 늘어져 있다.'),
+    N('플러그가, 콘센트에 꽂혀 있지 않았다.'),
+    H('레오 씨. 이거…… 처음부터 빠져 있던 거예요?'),
+    L('leo','shocked','……'),
+    L('leo','neutral','휘광제 전까진 안전 때문에 늘 뽑아 둬. 어젯밤에도 뽑혀 있었어. 내가 직접 확인했으니까.'),
+    L('leo','sad','그러니까 이 장치는, 전기 없이 빛났다는 얘기지.'),
+    {p:null},
+    {ev:'unplugged'}
+  ],
+  L_log:[
+    N('작업대 위의 낡은 일지. 레오의 장치 점검 기록이다. 날짜별로 빽빽하다.'),
+    N('3년 전, \'빛의 의식\'이 있던 날의 페이지를 펼쳤다.'),
+    N('한 줄이 검은 펜으로 여러 번 덧칠돼 있다. 불빛에 비춰 보니 겨우 글자가 읽힌다.'),
+    {note:'장치 가동 없음.\n그런데, 빛났다.'},
+    {ev:'leo_log'}
+  ],
+  L_floor:[N('단상 앞 바닥에 별 모양으로 그을린 자국이 희미하게 남아 있다. 촛농 자국은 아니다.')],
+  L_crane:[N('분수 바닥의 종이학 하나를 펼쳐 보았다.'),{note:'교주님,\n한 번만 기적을 보여주세요.'},N('서툰 글씨였다. 종이학을 다시 접어 분수에 내려놓았다.')],
+  L1_sian:[
+    L('sian','neutral','레오를 골랐다며. 그 녀석 말은 반만 믿어라. 나머지 반은 연출이니까.'),
+    H('어젯밤 무대 장치실 영상이 있나요?'),
+    L('sian','neutral','있다. 의식실 앞 카메라는 꺼졌지만, 장치실 카메라는 멀쩡했지.'),
+    {p:null},
+    N('시안이 모니터 하나를 가리켰다. 흑백 화면 속, 어두운 장치실.'),
+    N('11시 41분. 후광 장치가 천천히 빛나기 시작한다. 주변엔 아무도 없다.'),
+    N('빛은 정확히 4분 동안 이어지다가, 숨을 내쉬듯 꺼졌다.'),
+    L('sian','suspicious','의식실 앞 카메라가 꺼진 시간과 같은 4분이다. 우연이라기엔 깔끔하지.'),
+    H('레오 씨가 원격으로 켰을 가능성은요?'),
+    L('sian','neutral','그 장치엔 원격 장치가 없다. 3년 전에 내가 다 뜯어봤으니까. ……그날 밤에도 똑같은 걸 봤거든.'),
+    L('sian','neutral','보고서엔 \'장치 오작동\'이라고 썼다. 그렇게 쓰는 게 모두에게 편했으니까.'),
+    {p:null},
+    {ev:'footage'}
+  ],
+  L1_sian_again:[L('sian','neutral','영상은 복사해 두지 않는다. 본 걸 기억해 둬.'),{p:null}],
+  L1_doc:[
+    L('docheol','angry','또 왔냐. 이번엔 뭐.'),
+    H('어젯밤 무대 장치실에서 전기를 얼마나 썼는지 알 수 있을까요?'),
+    L('docheol','suspicious','……이상한 걸 묻네. 전기 요금은 내 담당이지. 층마다 계량기가 따로 달려 있어.'),
+    {p:null},
+    N('도철이 장부를 넘겼다. 굵은 손가락이 한 줄에서 멈춘다.'),
+    L('docheol','neutral','어젯밤 장치실 전력 사용량. 0이다. 휘광제 준비로 다른 층은 펑펑 썼는데, 거긴 하나도 안 썼어.'),
+    L('docheol','shocked','……잠깐. 그럼 그 빛은 뭘로 켜진 거야?'),
+    L('docheol','angry','아니, 됐다. 알고 싶지 않아. 난 숫자만 믿어.'),
+    {p:null},
+    {ev:'meter'}
+  ],
+  L1_doc_again:[L('docheol','angry','0은 0이다. 몇 번을 물어도.'),{p:null}],
+  L1_arin:[
+    L('arin','neutral','레오 씨랑 조사한다면서요. ……3년 전 그날 밤, 그 사람 얼굴이 하얗게 질려 있었어요.'),
+    L('arin','sad','그 뒤로 기적을 두 배로 늘렸죠. 마치 전부 자기가 한 거라고 증명하려는 것처럼.'),
+    {p:null}
+  ],
+  L1_arin_again:[L('arin','neutral','……레오 씨한텐 제가 말했다고 하지 마요.'),{p:null}],
+  L1_eun:[
+    L('eungyeol','smile','하진 씨, 레오 씨랑 다닌다면서요. 그 사람 말 너무 믿지 마요. 다 무대 연출이니까.'),
+    H('어젯밤 장치실에서 빛이 났대요. 아무도 켜지 않았는데.'),
+    L('eungyeol','neutral','그런 건 장치 오작동이에요. 레오 씨가 제일 잘 알 텐데.'),
+    {p:null},
+    N('은결은 웃고 있었다. 그런데 내 말이 채 끝나기도 전에 대답이 돌아왔다.')
+  ],
+  L1_eun_again:[L('eungyeol','smile','연습은 나중에 해요. 오늘은 목을 아껴야 해서요.'),{p:null}],
+
+  L_rehearsal:[
+    {p:null},{bg:'stage'},
+    N('조사를 마치고 장치실로 돌아오자, 레오는 말없이 이야기를 들었다.'),
+    L('leo','neutral','전원은 뽑혀 있었다. 전기는 0. 영상엔 아무도 없다.'),
+    L('leo','smile','……하하. 완벽한 마술이네. 트릭을 모르는 마술사가 나라는 것만 빼면.'),
+    L('leo','neutral','좋아, 일단 접어 두자. 저녁엔 리허설이다. 네가 무대에 서는 연습.'),
+    {p:null},
+    {bg:'chapel'},
+    N('저녁. 신도들이 돌아간 대예배당.\n촛불을 모두 끄고, 단상 위 조명 하나만 켜 두었다.'),
+    L('leo','smile','자, 대언자. 단상에 서. 신도석에 4만 명이 있다고 생각하고.'),
+    {p:null},
+    N('단상에 올라섰다. 텅 빈 신도석이 어둠 속으로 끝없이 이어진다.'),
+    L('leo','neutral','첫 동작. 두 손을 모아 가슴 앞으로. 그리고 천천히 들어 올려. 그 순간에 내가 장막 뒤 후광을 켤 거야.'),
+    {c:[
+      {t:'레오가 말한 대로 손을 모은다.', go:'reh_a'},
+      {t:'……몸이 시키는 대로 움직여 본다.', set:'leoBody', go:'reh_b'}
+    ]}
+  ],
+  reh_a:[
+    {p:null},
+    N('손을 모으려는데, 손가락이 제멋대로 움직였다.\n왼손이 오른손 위로 겹치고, 고개가 아주 조금 오른쪽으로 기운다.'),
+    {go:'reh_c'}
+  ],
+  reh_b:[
+    {p:null},
+    N('생각하기도 전에 손이 움직였다. 왼손을 오른손 위에 겹치고, 고개를 아주 조금 오른쪽으로 기울인다.'),
+    N('익숙한 동작이었다. 한 번도 해 본 적 없는데.'),
+    {go:'reh_c'}
+  ],
+  reh_c:[
+    L('leo','shocked','……너, 그 손.'),
+    L('leo','neutral','교주님 버릇이야. 왼손을 위로, 고개는 오른쪽. 하진은 한 번도 그렇게 서지 않았어.'),
+    H('저도 모르게…… 그렇게 됐어요.'),
+    {p:null},
+    N('손을 천천히 들어 올렸다.'),
+    {bg:'chapel_lit'},
+    N('그 순간.'),
+    N('꺼져 있던 촛불이, 한꺼번에 켜졌다.\n수백 개가. 성냥도, 바람도 없이.'),
+    N('장막 위로 별 모양의 빛이 번지고, 스테인드글라스가 안쪽에서부터 환하게 타올랐다.'),
+    L('leo','shocked','아직 안 켰어. 난 아직, 아무것도 안 켰다고……!'),
+    {p:null},
+    N('레오가 쥔 리모컨에는 손가락조차 닿아 있지 않았다.'),
+    N('빛은 내가 손을 내릴 때까지 이어지다가, 숨을 내쉬듯 꺼졌다.'),
+    {bg:'chapel'},
+    L('leo','sad','……미안. 오늘 리허설은 여기까지.'),
+    {p:null},
+    N('레오는 그 말만 남기고, 도망치듯 예배당을 나갔다.'),
+    {ev:'candles'},
+    {go:'L_night'}
+  ],
+  L_night:[
+    {bg:'hajin_room'},
+    N('그날 밤. 나는 거울 앞에 섰다.'),
+    {p:'seolyu', e:'neutral'},
+    N('이번엔 눈을 깜빡이지 않았는데도, 거울 속 얼굴은 하진이 아니었다.'),
+    N('검은 머리의 사람이 왼손을 오른손 위에 겹친 채, 고개를 조금 기울이고 있었다.\n방금 내가 무대에서 했던 그대로.'),
+    {p:null},
+    H('……당신은, 누구예요?'),
+    N('대답은 없었다. 다만 방 안의 촛불 하나가, 대답처럼 흔들렸다.'),
+    {go:'L_d1'}
+  ],
+  L_d1:[
+    {day:1},{bg:'stage'},
+    N('휘광제 D-1.'),
+    N('장치실에 가자, 레오는 밤을 새운 얼굴로 장치를 해체하고 있었다.'),
+    L('leo','smile','왔어? 보다시피 바빠. 어제 그건 내 실수야. 촛불에 원격 점화 장치를 달아 놓고 깜빡했거든.'),
+    {p:null},
+    N('말투는 가벼웠지만 손이 떨리고 있었다. 이번엔 숨길 생각도 없는 것 같았다.'),
+    L('leo','neutral','하진. 3년 전 그 빛도, 그저께 밤 그 빛도, 어제 촛불도. 전부 내 장치 오작동이었어. 그렇게 정리하자. 그게 모두한테 편해.'),
+    {p:null},
+    N('정말 그럴까. 지금까지 모은 조각들은 다른 이야기를 하고 있다.'),
+    {trial:'leo'}
+  ],
+  L_trial1_ok:[
+    H('배선이 꼬여서 혼자 켜졌다고요? 그 장치는 플러그가 뽑혀 있었어요. 레오 씨가 직접 확인했다고 했잖아요.'),
+    L('leo','shocked','……!'),
+    H('도철 씨 장부도 봤어요. 그날 밤 장치실 전력 사용량은 0이었어요.'),
+    L('leo','sad','……그래. 전기가 없으면 배선이 아무리 꼬여도 아무것도 안 켜지지. 그건 내가 제일 잘 알아.'),
+    L('leo','angry','그래도! 그건 그저께 밤 얘기야. 3년 전은 달라.'),
+    {p:null},
+    {trial:'leo2'}
+  ],
+  L_trial2_ok:[
+    H('3년 전 그날 당신 일지예요. 덧칠한 줄 아래에 이렇게 적혀 있었어요.'),
+    {note:'장치 가동 없음.\n그런데, 빛났다.'},
+    L('leo','shocked','……그걸, 읽었어?'),
+    {p:null},
+    N('레오는 작업대에 털썩 주저앉았다. 손에서 빠져나간 드라이버가 바닥을 굴렀다.'),
+    L('leo','sad','……그래. 3년 전 그날 밤, 난 여기서 의식 준비를 하고 있었어. 장치는 전부 꺼져 있었고.'),
+    L('leo','sad','그런데 의식실 쪽에서 빛이 쏟아졌어. 문틈으로, 벽 틈으로. 하얗고, 차갑고, 조용한 빛이.'),
+    L('leo','neutral','빛 속에서 누가 주문을 읊고 있었어. 교주님 목소리였는데…… 이상하게, 중간중간 다른 사람 목소리가 섞여 있었지.'),
+    L('leo','sad','빛이 꺼지고 달려가 보니 교주님이 쓰러져 계셨어. 그 뒤로 다시는 일어나지 않으셨지.'),
+    L('leo','neutral','무서웠어. 내가 평생 해 온 게 전부 가짜인데, 진짜가 있다는 게. 그래서 기적을 더 만들었어. 세상에 트릭 아닌 건 없다고 믿고 싶어서.'),
+    L('leo','sad','그런데 그저께 그 빛이 또 나타났고, 어제는 네 손짓에 맞춰 촛불이 켜졌지.'),
+    L('leo','neutral','하진. 넌 대체…… 누구야?'),
+    {c:[
+      {t:'"모르겠어요. 그래서 찾고 있어요."', go:'L_end_a'},
+      {t:'"당신 마술이 아니라면, 정말 기적이겠죠."', go:'L_end_b'}
+    ]}
+  ],
+  L_end_a:[
+    L('leo','sad','……그래. 너도 무섭겠구나. 나보다 훨씬.'),
+    L('leo','smile','좋아. 그럼 공범끼리 약속하자. 네가 누군지 알게 되면, 제일 먼저 나한테 말해 줘. 관객 1호로.'),
+    {go:'L_end'}
+  ],
+  L_end_b:[
+    L('leo','angry','기적, 기적…… 그 말이 제일 싫어.'),
+    L('leo','sad','……아니, 미안. 네 탓이 아니지.'),
+    {go:'L_end'}
+  ],
+  L_end:[
+    {p:null},
+    N('한참 뒤. 레오는 해체하던 장치를 다시 조립하기 시작했다.'),
+    L('leo','neutral','휘광제는 할 거야. 4만 명이 기다리니까. 내 마지막 공연으로.'),
+    H('마지막이요?'),
+    L('leo','smile','끝나면 교단을 떠날 거야. 거리로 돌아가야지. 처음 마술을 배웠던 데로.'),
+    L('leo','neutral','진짜 기적이 있는 세상에서, 가짜 기적으로 사람을 묶어 두는 건…… 이제 못 하겠어.'),
+    H('……그래도 사람들을 웃게 한 건 당신 마술이었어요.'),
+    L('leo','shocked','……'),
+    L('leo','smile','하. 대언자가 마술사를 위로하네. 이거 완전히 역할이 뒤바뀌었는데.'),
+    {p:null},
+    N('레오가 빈 손바닥을 펴 보였다. 손을 쥐었다가 다시 펴자, 그 위에 작은 종이학이 앉아 있었다.'),
+    L('leo','smile','분수에 있던 거야. 기적을 보여 달라던 그거. ……이건 진짜 트릭이야. 안심해도 돼.'),
+    {p:null},
+    N('종이학을 받아 들었다. 접힌 날개 끝이, 아주 조금 따뜻했다.'),
+    {ending:'거리의 마술사'},
+    {secret:'leo'}
+  ],
+
+
+  /* ===================== 백시안 루트 ===================== */
+  sian_r1:[
+    {day:2},{bg:'watch'},
+    N('휘광제 D-2. 아침. 감시실.'),
+    N('모니터 불빛 아래, 책상 위에 빛바랜 사진 네 장이 나란히 놓여 있었다.'),
+    L('sian','neutral','약속대로다. 백 년 치 사진.'),
+    {p:null},
+    N('1925년. 기름 램프 아래 두루마기를 입은 중년 남자.\n1958년. 안경을 쓴 마른 노인.\n1987년. 단상 위에 선 덩치 큰 남자.'),
+    N('그리고 2016년. 장막 앞에 앉은 젊은 남자. 의식실 장막 뒤의 성체와 같은 얼굴이다.'),
+    L('sian','neutral','전부 천휘교, 그 전엔 휘명당과 백광회의 교주들이다. 얼굴도 나이도 체격도 다르지. 그런데 손을 봐.'),
+    {p:null},
+    N('네 사람 모두, 왼손을 오른손 위에 겹쳐 모으고 있었다. 고개는 하나같이 오른쪽으로 조금 기울어져 있다.'),
+    H('어제 아린 씨가 말한…… 교주님 버릇.'),
+    L('sian','suspicious','그리고 그저께 바뀐 네 가르마. 오늘 아침 네가 문 앞에서 손을 모은 모양.'),
+    H('……'),
+    L('sian','neutral','난 미신을 안 믿는다. 그러니까 증명할 거다. 이게 그냥 \'전통\'인지, 아니면 다른 무언가인지.'),
+    {ev:'album'},
+    {c:[
+      {t:'"왜 이렇게까지 조사하는 거예요?"', set:'sianWhy', go:'sian_why'},
+      {t:'"결국 저를 의심하는 거죠?"', go:'sian_doubt'}
+    ]}
+  ],
+  sian_why:[
+    L('sian','neutral','일이니까. ……4년 전, 의뢰를 받고 이 교단에 들어왔다. 실종된 신도를 찾아 달라는 의뢰였지.'),
+    L('sian','neutral','교주가 쓰러지고도 떠나지 않은 건, 그 의뢰를 아직 못 끝냈기 때문이다.'),
+    {go:'sian_r1_c'}
+  ],
+  sian_doubt:[
+    L('sian','suspicious','의심한다. 넌 내가 본 사람 중에 가장 수상하다.'),
+    L('sian','neutral','그래서 옆에 두는 거다. 수상한 건 멀리 두면 안 보이거든.'),
+    {go:'sian_r1_c'}
+  ],
+  sian_r1_c:[
+    L('sian','neutral','오늘 할 일. 녹음실의 옛 테이프, 의상실의 예복, 회계실의 옛 문서. 백 년 전 흔적이 남아 있을 만한 곳이다.'),
+    L('sian','neutral','난 여기서 영상을 다시 돌려 보겠다. 다 보면 저녁에 이리로 와.'),
+    {p:null},
+    N('녹음실, 의상실, 회계실을 돌며 백 년 전의 흔적을 찾아보자.'),
+    {explore:'S1'}
+  ],
+  S1_sian:[L('sian','neutral','아직이다. 테이프, 예복, 문서. 다 보고 저녁에 와.'),{p:null}],
+  S1_eun:[
+    L('eungyeol','smile','하진 씨, 시안 씨랑 다닌다면서요. 옛날 테이프요? 저기 선반 맨 아래 상자에 있어요.'),
+    L('eungyeol','neutral','교주님 연기할 때 참고하려고 저도 몇 번 들었어요. 이상하죠. 목소리는 다 다른데, 말투랑 숨 쉬는 자리가 똑같아요.'),
+    L('eungyeol','neutral','……시안 씨가 뭘 찾는지는 모르겠지만, 지나간 건 지나간 거예요. 너무 깊이 파면 다쳐요.'),
+    {p:null}
+  ],
+  S1_eun_again:[L('eungyeol','smile','테이프는 다 듣고 제자리에 넣어 줘요.'),{p:null}],
+  S_tape:[
+    N('선반 맨 아래, 먼지가 쌓인 상자. 라벨에 \'휘명당 설교 1958\'이라고 적혀 있다.'),
+    N('녹음기에 걸어 재생 버튼을 눌렀다. 지직거리는 잡음 사이로, 늙은 남자의 목소리가 흘러나온다.'),
+    {note:'빛은 떠나지 않는다.\n다만 너희가 눈을 감았을 뿐이다.'},
+    N('은결이 들려준 것과 한 글자도 다르지 않은 문장. 숨을 고르는 자리까지 똑같다.'),
+    {ev:'old_tape'}
+  ],
+  S1_arin:[L('arin','neutral','예복 보러 온 거죠? 저기 마네킹에 있어요. 만지기 전에 손 씻고요.'),{p:null}],
+  S1_arin_again:[L('arin','neutral','안감 실밥 건드리지 마요.'),{p:null}],
+  S_lining:[
+    L('arin','neutral','……시안 씨가 보냈구나. 안감 보려고요?'),
+    L('arin','neutral','이 예복, 교주님이 처음 맡기실 때 백 년 된 거라고 하셨어요. 겉감은 몇 번 갈았지만, 안감만은 절대 바꾸지 말라고.'),
+    {p:null},
+    N('아린이 예복 자락을 뒤집어 보였다. 붉은 안감 위에, 같은 실과 같은 바느질로 이름 넷이 수놓여 있다.'),
+    {note:'윤명수 1925\n한기철 1958\n서도윤 1987\n설유 2016'},
+    L('arin','sad','역대 교주님들 이름이래요. 그 아래 한 칸은 비어 있어요. ……다음 분 자리라고.'),
+    {p:null},
+    {ev:'lining'}
+  ],
+  S1_doc:[
+    L('docheol','angry','옛날 문서? 너네 둘이 고고학 하냐?'),
+    L('docheol','neutral','……있긴 있다. 이 건물 땅 문서. 1925년. 그땐 이름이 휘명당이었지.'),
+    {p:null},
+    N('도철이 금고에서 누렇게 바랜 문서를 꺼냈다. 맨 아래에 붓으로 쓴 서명이 있다.'),
+    L('docheol','suspicious','근데 이상한 게 하나 있어. 3년 전 교주님이 마지막으로 서명한 결재 서류랑 이걸 나란히 놓으면……'),
+    {p:null},
+    N('두 서명은 획의 기울기도, 끝을 튕기는 버릇도 같았다. 백 년의 시간을 사이에 두고.'),
+    L('docheol','angry','난 숫자만 믿는다고 했지. 이건 숫자가 아니라서 안 믿을 거다.'),
+    {p:null},
+    {ev:'deed_sign'}
+  ],
+  S1_doc_again:[L('docheol','angry','문서는 금고에 다시 넣었다. 더 보고 싶으면 시안한테 사진 찍어 달라고 해.'),{p:null}],
+  S1_leo:[
+    L('leo','smile','시안이랑 다닌다고? 재밌는 조합이네.'),
+    L('leo','neutral','하나 알려 줄까. 그 녀석 처음 교단에 왔을 때 신분이 가짜였어. 시안도 알고 우리도 알아. 서로 모른 척할 뿐이지.'),
+    L('leo','smile','이 교단엔 가짜가 아닌 게 없거든. 나 포함해서.'),
+    {p:null}
+  ],
+  S1_leo_again:[L('leo','smile','나 바빠. 오늘은 기적 연습 중이라.'),{p:null}],
+  S_plaque:[N('스테인드글라스 테두리에 작게 새겨진 숫자가 있다. 1925. 이 건물이 처음 지어진 해일까.')],
+  S_mirror:[N('거울을 오래 들여다볼 용기가 나지 않았다.')],
+
+  S_evening:[
+    {p:null},{bg:'watch'},
+    N('저녁. 감시실 책상 위에 오늘 모은 것들을 늘어놓았다.'),
+    L('sian','neutral','사진, 테이프, 예복의 이름, 땅 문서. 백 년 동안 얼굴도 이름도 바뀌었는데, 버릇과 말투와 필체는 그대로다.'),
+    L('sian','neutral','하나만 더 확인하자.'),
+    {p:null},
+    N('시안이 종이와 펜을 내밀었다.'),
+    L('sian','neutral','네 이름을 써 봐. 하진이라고.'),
+    {c:[
+      {t:'또박또박 \'유하진\'이라고 쓴다.', go:'S_pen_a'},
+      {t:'펜이 가는 대로 맡긴다.', set:'sianPen', go:'S_pen_b'}
+    ]}
+  ],
+  S_pen_a:[
+    {p:null},
+    N('천천히 이름을 썼다. 유, 하……\n그런데 세 번째 글자에서 손이 멈추지 않았다. 펜이 저절로 미끄러지며 낯선 획을 그었다.'),
+    {go:'S_sign'}
+  ],
+  S_pen_b:[
+    {p:null},
+    N('펜을 쥔 손에서 힘을 빼자, 손이 알아서 움직였다. 망설임 없는, 오래 써 온 사람의 획이었다.'),
+    {go:'S_sign'}
+  ],
+  S_sign:[
+    N('종이 위에 남은 건 \'하진\'이 아니었다.'),
+    {note:'설유'},
+    L('sian','shocked','……'),
+    {p:null},
+    N('시안이 말없이 땅 문서를 찍은 사진을 그 옆에 내려놓았다. 기울기도, 끝을 튕기는 버릇도 같다.'),
+    L('sian','neutral','하진의 글씨는 각지고 작다. 3년 동안 매주 원고를 받았으니 내가 안다. 이건 하진의 글씨가 아니야.'),
+    L('sian','suspicious','이건 백 년 전 땅 문서에 서명한 것과 같은 손이다.'),
+    {ev:'my_signature'},
+    H('저는…… 정말 몰라요. 손이 멋대로.'),
+    L('sian','neutral','안다. 얼굴을 보면 알아. 거짓말하는 사람의 얼굴이 아니다. ……그게 더 곤란하지만.'),
+    {if:'sianWhy', then:'S_client', else:'S_client_ask'}
+  ],
+  S_client_ask:[
+    H('시안 씨는…… 왜 이렇게까지 하는 거예요?'),
+    L('sian','neutral','의뢰다. 4년 전, 실종된 신도를 찾아 달라는 의뢰를 받고 이 교단에 들어왔다.'),
+    {go:'S_client'}
+  ],
+  S_client:[
+    L('sian','neutral','의뢰인은 전화로만 연락했다. 얼굴도 이름도 모른다. 실종된 건 의뢰인의 오빠였고, 이 교단에 들어간 뒤 10년 전쯤 연락이 끊겼다더군.'),
+    L('sian','neutral','사진 한 장 보내지 않았다. 오빠 얼굴을 보면 자기가 무너질 것 같다면서.'),
+    L('sian','sad','목소리가 좋은 사람이었다. 차분하고, 이상할 만큼 듣기 좋은.'),
+    L('sian','neutral','……오늘은 여기까지. 내일 정리한 걸 들려주지.'),
+    {p:null},
+    {go:'S_dream'}
+  ],
+  S_dream:[
+    {bg:'black'},
+    N('그날 밤, 꿈을 꾸었다.'),
+    N('나무 바닥의 강당. 기름 램프. 낯선 사람들이 나를 \'윤 선생님\'이라 부른다.'),
+    N('장면이 바뀐다. 흑백 텔레비전 소리. 나를 \'한 교주님\'이라 부르는 사람들.'),
+    N('다시 바뀐다. 장막. 촛불. 젊은 남자가 바닥에 쓰러져 있고, 누군가 그를 내려다보고 있다.\n……내 눈으로.'),
+    {p:'seolyu', e:'neutral'},
+    N('「또, 새 몸이구나.」'),
+    {p:null},
+    N('숨을 몰아쉬며 깨어났다. 창밖은 아직 어두웠다.'),
+    {go:'S_d1'}
+  ],
+  S_d1:[
+    {day:1},{bg:'watch'},
+    N('휘광제 D-1. 감시실.'),
+    N('시안은 밤을 새운 듯했다. 사진과 문서가 벽 한 면에 실로 연결돼 붙어 있다.'),
+    L('sian','neutral','밤새 정리했다. 가장 지루한 설명부터 시작하지. 탐정은 원래 그렇게 한다.'),
+    L('sian','suspicious','반박할 수 있으면 반박해 봐. 못 하면 내 설명이 맞는 거다.'),
+    {p:null},
+    {trial:'sian'}
+  ],
+  S_t1_ok:[
+    H('예복 안감의 이름을 보세요. 윤명수, 한기철, 서도윤, 설유. 성이 전부 달라요.'),
+    L('sian','neutral','……호적도 확인했다. 넷은 서로 아무 관계도 없는 남이다.'),
+    L('sian','neutral','좋아. 첫 번째 설명은 탈락. 다음.'),
+    {p:null},
+    {trial:'sian2'}
+  ],
+  S_t2_ok:[
+    H('저는 그 서명을 배운 적도, 연습한 적도 없어요. 기억도 없는 제 손이 어젯밤 그 서명을 썼어요.'),
+    L('sian','neutral','……그래. 그게 이 설명의 구멍이지. 일부러 남겨 뒀다. 네 입으로 듣고 싶었거든.'),
+    L('sian','neutral','지루한 설명이 전부 무너지면, 남은 건 아무리 말이 안 돼도 진실이다.'),
+    L('sian','suspicious','하나의 영혼이 몸을 갈아타며 백 년을 살아왔다. 1925, 1958, 1987, 2016. 대략 삼십 년마다.'),
+    L('sian','neutral','다음 차례는 3년 전이었다. 그게 실패했고. ……아니, 실패하지 않았는지도 모르지.'),
+    {p:null},
+    N('시안이 똑바로 나를 보았다.'),
+    L('sian','neutral','지금 내 앞에 있는 게 누군지, 너도 모르지.'),
+    {c:[
+      {t:'"제가…… 교주라는 거예요?"', go:'S_end_a'},
+      {t:'"그럼 진짜 하진 씨는 어디 있죠?"', set:'askHajin', go:'S_end_b'}
+    ]}
+  ],
+  S_end_a:[
+    L('sian','neutral','그럴 가능성이 가장 높다. 하지만 탐정은 가능성만으로 사람을 체포하지 않는다.'),
+    {go:'S_end'}
+  ],
+  S_end_b:[
+    L('sian','shocked','……'),
+    L('sian','neutral','좋은 질문이다. 몸을 빼앗긴 사람이 어디로 가는지. 그건 아직 모른다.'),
+    L('sian','sad','……그 질문을 제일 먼저 하는 놈이 교주일 리가 있나.'),
+    {go:'S_end'}
+  ],
+  S_end:[
+    {p:null},
+    N('시안이 책상 서랍에서 수갑을 꺼냈다. 한참 내려다보다가, 다시 서랍에 넣었다.'),
+    L('sian','neutral','원래 계획은 이랬다. 증거가 모이면 너를 넘긴다. 경찰이든, 의뢰인이든.'),
+    L('sian','neutral','그런데 영혼을 체포하는 법은 어느 법전에도 없더군.'),
+    {p:null},
+    N('시안이 사진첩에서 한 장을 빼 내게 건넸다. 2016년. 장막 앞에 앉은 젊은 남자.'),
+    L('sian','neutral','가져가라. 마지막 교주의 사진이다. 성체와 같은 얼굴이지.'),
+    L('sian','neutral','네가 누구든, 이번엔 다르게 끝내.'),
+    {p:null},
+    N('시안은 나머지 사진과 문서를 철제 통에 넣고, 성냥을 그었다.'),
+    H('태워도 돼요? 4년 동안 모은 거잖아요.'),
+    L('sian','neutral','이게 남아 있으면 다음 교주가 또 이걸 이용할 거다. 백 년 동안 그래 왔으니까.'),
+    L('sian','neutral','난 지켜보겠다. 네가 뭘 선택하는지. 그게 내 마지막 조사다.'),
+    {p:null},
+    N('손에 쥔 사진 속 젊은 남자는 웃고 있었다.\n교주라기엔 어딘가 서툰, 누군가의 가족 같은 웃음이었다.'),
+    {ending:'이번엔 다르게'},
+    {secret:'sian'}
+  ],
+
+
+  /* ===================== 모아린 루트 ===================== */
+  arin_r1:[
+    {day:2},{bg:'dressing'},
+    N('휘광제 D-2. 해 뜨기 전.'),
+    N('약속대로 의상실에 가자, 아린이 화장품 상자를 품에 안고 기다리고 있었다.'),
+    L('arin','neutral','왔네요. 조용히 따라와요. 다른 사람들 일어나기 전에.'),
+    {p:null},{bg:'ritual'},
+    N('아린은 작은 열쇠를 꺼내 의식실 문을 열었다. 도철이 관리하는 것과는 다른 열쇠였다.'),
+    L('arin','neutral','성체 관리용 열쇠예요. 저만 갖고 있어요. ……도철 씨한텐 비밀이에요.'),
+    {p:null},
+    N('장막을 걷자, 촛불 사이로 성체가 앉아 있었다.'),
+    {p:'seongche', e:'neutral'},
+    N('젊은 남자의 몸. 하얗게 분칠한 얼굴, 단정히 빗어 넘긴 머리.\n숨은 쉬고 있지만, 살아 있다고 하기엔 너무 고요하다.'),
+    L('arin','neutral','매일 새벽 이 시간에 화장을 고쳐요. 장막 너머로 봤을 때 혈색이 돌아 보이게.'),
+    L('arin','sad','3년 동안 하루도 빠짐없이요. 이분은 그냥 앉아만 계셨어요. 그런데…… 그저께부터 달라졌어요.'),
+    H('손가락이 움직인 거요?'),
+    L('arin','neutral','그것만이 아니에요. 밤마다 눈을 떠요. 반쯤. 그리고…… 두리번거려요.'),
+    L('arin','shocked','교주님은 그런 눈을 하신 적이 없어요. 늘 고요하고, 다 아는 것 같은 눈이었는데. 지금 눈은…… 겁먹은 사람 눈이에요. 길 잃은 아이처럼.'),
+    {p:'seongche', e:'neutral'},
+    N('감긴 눈꺼풀 아래로, 아주 희미하게 눈동자가 움직인 것 같았다.'),
+    {c:[
+      {t:'"다른 사람 같다는 거예요?"', go:'arin_r1_a'},
+      {t:'"그 치수 노트도 보여줄 수 있어요?"', set:'arinNote', go:'arin_r1_b'}
+    ]}
+  ],
+  arin_r1_a:[
+    L('arin','sad','……말도 안 되는 소리죠. 근데 3년 동안 매일 본 얼굴이에요. 표정이 달라지면 알아요.'),
+    {go:'arin_r1_c'}
+  ],
+  arin_r1_b:[
+    L('arin','neutral','……역시 그거 때문에 왔죠. 노트는 의상실 책상에 있어요. 숨길 생각이었는데, 이젠 혼자 갖고 있기가 무서워요.'),
+    {go:'arin_r1_c'}
+  ],
+  arin_r1_c:[
+    L('arin','neutral','오늘 같이 확인해 줘요. 성체도, 이 방도, 그 노트도. 그리고 시안 씨한테 밤 영상이 있을 거예요. 이 방 카메라는 밤새 돌아가니까.'),
+    {p:null},
+    N('의식실과 의상실을 살펴보고, 감시실의 시안에게 밤 영상을 부탁해 보자.'),
+    {explore:'A1'}
+  ],
+  A1_arin:[L('arin','neutral','성체 만질 땐 조심해요. 바닥 의식진도 지워지면 안 되고요. 노트는 의상실 책상에 있어요.'),{p:null}],
+  A_body:[
+    {p:'seongche', e:'neutral'},
+    N('가까이서 본 성체의 얼굴. 분칠 아래, 오른쪽 뺨에 가늘게 마른 자국이 있다.'),
+    L('arin','sad','……눈물 자국이에요. 어젯밤 화장을 고칠 때 봤어요. 교주님은 3년 전에도, 그 전에도 우신 적이 없어요.'),
+    {p:'seongche', e:'neutral'},
+    N('성체의 오른손. 집게손가락 끝이 팔걸이 위에 살짝 들려 있다.'),
+    {p:null},
+    {ev:'tears'}
+  ],
+  A_circle:[
+    N('바닥에 새겨진 의식진. 가운데 별에서 여섯 갈래 선이 뻗어 나가고, 끝마다 작은 원이 있다.'),
+    N('원 옆에 작은 글씨로 이름이 새겨져 있다.\n진레오, 하은결, 모아린, 강도철, 백시안, 유하진.'),
+    N('여섯 원 중 하나만 검게 그을려 있었다. 유하진.'),
+    L('arin','shocked','……3년 전 의식 날 이후로 그대로예요. 그땐 그냥 촛농 자국인 줄 알았는데.'),
+    {p:null},
+    {ev:'circle'}
+  ],
+  A_candle:[N('촛대마다 녹아내린 초가 겹겹이 쌓여 있다. 3년 동안 한 번도 꺼지지 않게, 아린이 직접 갈아 끼웠다고 한다.')],
+  A_notes:[
+    N('의상실 책상 위의 두꺼운 치수 노트. 이번엔 아무도 막지 않았다.'),
+    N('여섯 명의 이름과 치수가 빼곡하다. 키, 어깨너비, 손 크기. 혈액형과 생일까지.'),
+    N('맨 오른쪽 칸의 제목은 \'의상\'이 아니었다.'),
+    {note:'그릇 적합도\n유하진 ◎   하은결 ○\n진레오 △   모아린 △\n강도철 △   백시안 ×'},
+    N('5년 전, 교주가 직접 받아 적게 한 기록이다. 정작 그 치수로 만든 옷은 한 벌도 없었다.'),
+    {ev:'measure'}
+  ],
+  A1_sian:[
+    L('sian','neutral','모아린이랑 다닌다고. 의식실 밤 영상 말이지.'),
+    {p:null},
+    N('모니터에 새벽 3시의 의식실이 떠올랐다. 장막 뒤 성체의 실루엣.'),
+    N('3시 12분. 성체의 오른손 집게손가락이 팔걸이를 톡, 톡. 두 번 두드린다.\n잠시 멈췄다가, 다시 두 번.'),
+    L('sian','suspicious','이 버릇, 본 적 있다. 하진이 원고 마감을 기다릴 때 책상을 꼭 저렇게 두 번씩 두드렸지.'),
+    L('sian','neutral','……교주의 버릇이 아니라, 하진의 버릇이다.'),
+    {p:null},
+    {ev:'tap'}
+  ],
+  A1_sian_again:[L('sian','neutral','영상은 거기까지다. 나머진 네가 판단해.'),{p:null}],
+  A1_eun:[
+    L('eungyeol','smile','아린 씨랑 의식실에 들어갔다면서요? 부지런하네요.'),
+    L('eungyeol','neutral','……성체는 건드리지 마요. 괜히 자극했다가 깨어나시면 안 되니까요.'),
+    H('안 된다고요?'),
+    L('eungyeol','smile','아, 아니. 아직 준비가 안 됐다는 뜻이에요. 휘광제 전에 깨어나시면 다들 혼란스러울 테니까. 그쵸?'),
+    {p:null}
+  ],
+  A1_eun_again:[L('eungyeol','smile','연습할 시간 나면 녹음실로 와요.'),{p:null}],
+  A1_leo:[
+    L('leo','neutral','의식실 들어갔어? 그 방은 3년 전부터 공기가 달라. 들어가면 귀가 먹먹해지지.'),
+    L('leo','smile','그래서 난 그 방엔 장치를 하나도 안 달았어. 이미 뭔가 살고 있는 방에, 내 트릭까지 넣을 필요는 없잖아?'),
+    {p:null}
+  ],
+  A1_leo_again:[L('leo','smile','나 지금 거울 닦는 중이야. 서른두 장.'),{p:null}],
+  A1_doc:[
+    L('docheol','neutral','아린? 그 녀석 장부에 이상한 게 하나 있지. 성체 관리비가 3년 내내 0원이야.'),
+    L('docheol','angry','화장품, 침구, 영양제. 전부 자기 돈으로 사더라. 청구하라고 해도 안 해.'),
+    L('docheol','neutral','……신을 돌보는 데 교단 돈 쓰기 싫다나. 난 그런 거 이해 못 해.'),
+    {p:null}
+  ],
+  A1_doc_again:[L('docheol','angry','돈 얘기 아니면 나가.'),{p:null}],
+
+  A_night:[
+    {p:null},{bg:'ritual'},
+    N('밤. 아린과 함께 의식실 구석에 앉아 성체를 지켜보기로 했다.'),
+    N('촛불이 낮게 타들어 간다. 자정이 지나고, 1시, 2시.'),
+    L('arin','neutral','……슬슬 그 시간이에요.'),
+    {p:null},
+    N('3시가 조금 넘었을 때였다.'),
+    {p:'seongche', e:'shocked'},
+    N('성체의 눈꺼풀이 천천히 열렸다.'),
+    N('흐린 눈동자가 이리저리 헤매다가, 나에게서 멈췄다.\n……아니. 정확히는 내 얼굴에. 하진의 얼굴에.'),
+    N('입술이 아주 느리게 움직였다. 소리는 없었지만, 모양은 알아볼 수 있었다.'),
+    {note:'내……\n몸……'},
+    N('오른손 집게손가락이 팔걸이를 두드린다. 톡, 톡.'),
+    {p:'seongche', e:'sad'},
+    N('눈가에 다시 물기가 맺혔다. 그리고 눈이 감겼다.'),
+    {p:null},
+    L('arin','shocked','……봤죠. 방금, 봤죠.'),
+    H('저를…… 보고 있었어요. 제 얼굴을.'),
+    {p:null},
+    N('가슴 안쪽이 끌려가는 듯 아팠다. 이 몸이 저 사람 쪽으로 기울어지는 느낌.'),
+    L('arin','sad','……내일 얘기해요. 오늘은, 더 못 듣겠어요.'),
+    {p:null},
+    {go:'A_d1'}
+  ],
+  A_d1:[
+    {day:1},{bg:'dressing'},
+    N('휘광제 D-1. 의상실.'),
+    N('아린은 휘광제 예복을 다리고 있었다. 다리미를 쥔 손이 같은 자리를 몇 번이고 오갔다.'),
+    L('arin','neutral','밤새 생각했어요. 그리고 결론을 냈어요.'),
+    L('arin','smile','교주님이 깨어나시는 거예요. 몸이 오래 잠들어 있어서, 아직 정신이 흐릿하신 것뿐이에요. 그래서 그런 눈을 하신 거고요.'),
+    L('arin','sad','……그래야 해요. 그래야 제 3년이 의미가 있으니까.'),
+    {p:null},
+    N('아린의 말은 자기 자신을 설득하는 것처럼 들렸다. 그리고 그 말은 사실과 맞지 않는다.'),
+    {trial:'arin'}
+  ],
+  A_t1_ok:[
+    H('그 버릇은 교주님 게 아니에요. 시안 씨 영상, 봤잖아요. 원고 기다릴 때 책상을 두 번씩 두드리는 건…… 하진 씨 버릇이에요.'),
+    L('arin','shocked','……!'),
+    L('arin','angry','그, 그건 우연일 수도 있잖아요. 3년 전 의식은 교주님을 위한 거였어요. 하진 씨랑은 상관없다고요!'),
+    {p:null},
+    {trial:'arin2'}
+  ],
+  A_t2_ok:[
+    H('의식진에 측근 여섯의 이름이 있었어요. 그중 하진 씨 원만 그을려 있었고요.'),
+    H('그리고 아린 씨 노트. 교주님이 5년 전에 받아 적게 한 \'그릇 적합도\'. 하진 씨가 1순위였어요.'),
+    L('arin','sad','……'),
+    {p:null},
+    N('다리미가 천 위에서 멈췄다. 희미하게 탄내가 올라왔다.'),
+    L('arin','sad','……알고 있었어요. 노트를 숨긴 것도, 무서워서였어요. 그 칸 제목을 처음 봤을 때부터.'),
+    L('arin','neutral','교주님은 옷을 만들려던 게 아니었어요. 갈아입을 몸을 고르고 계셨던 거예요.'),
+    H('그럼 3년 전 의식은 하진 씨 몸으로 옮겨 가는 의식이었고…… 지금 성체 안에 있는 건—'),
+    L('arin','shocked','하진 씨예요.'),
+    {p:null},
+    N('말이 떨어지는 순간, 둘 다 같은 걸 깨달았다.'),
+    L('arin','sad','그럼…… 하진 씨 몸 안에 있는 당신은, 누구예요?'),
+    {c:[
+      {t:'"……저도 몰라요. 하지만 이 몸은 돌려줘야 해요."', set:'returnBody', go:'A_end_a'},
+      {t:'"……교주일지도 몰라요."', go:'A_end_b'}
+    ]}
+  ],
+  A_end_a:[
+    L('arin','shocked','……'),
+    L('arin','sad','돌려준다는 말을, 그렇게 쉽게 하네요. 교주님이라면 절대 안 할 말인데.'),
+    {go:'A_end'}
+  ],
+  A_end_b:[
+    L('arin','sad','……그렇겠죠. 근데 이상하게 하나도 무섭지 않아요. 당신 눈은 교주님이랑 달라서.'),
+    {go:'A_end'}
+  ],
+  A_end:[
+    {p:null},{bg:'ritual'},
+    N('그날 밤. 아린은 화장품 상자 대신 미지근한 물과 수건을 들고 의식실로 갔다. 나도 따라 들어갔다.'),
+    {p:'seongche', e:'neutral'},
+    N('아린이 성체의 얼굴에서 분칠을 천천히 닦아냈다. 3년 동안 한 겹씩 덧바른 \'교주의 얼굴\'이 수건에 묻어 나왔다.'),
+    N('그 아래에는 핏기 없는, 지친, 평범한 젊은 남자의 얼굴이 있었다.'),
+    L('arin','sad','……아름답게 꾸며야 할 신이 아니라, 그냥 사람이었네.'),
+    {p:null},
+    N('우리는 성체를 장막 뒤 단상에서 내려, 아린이 가져온 간이침대에 눕혔다.\n3년 만에 처음으로, 앉은 자세에서 풀려난 몸이었다.'),
+    N('아린이 그 손을 잡았다.'),
+    L('arin','neutral','들려요, 하진 씨? 조금만 기다려요. 몸, 꼭 돌려받게 해 줄게요.'),
+    {p:'seongche', e:'sad'},
+    N('성체의 집게손가락이 아린의 손등 위를 두드렸다. 톡, 톡.'),
+    L('arin','smile','……대답했어요.'),
+    {p:null},
+    N('아린은 울면서 웃었다. 3년 만에 처음 보는 얼굴이었다.'),
+    {ending:'맨얼굴'},
+    {secret:'arin'}
+  ],
+
+
+  /* ===================== 강도철 루트 ===================== */
+  doc_r1:[
+    {day:2},{bg:'accounts'},
+    N('휘광제 D-2. 아침. 회계실.'),
+    N('도철이 책상 위에 장부 한 권을 펼쳐 놓고 기다리고 있었다. 표지에 \'예배 인원\'.'),
+    L('docheol','neutral','왔냐. 앉아. 영수증 자리 말고.'),
+    L('docheol','neutral','난 3년 동안 헌금보다 이걸 더 열심히 셌다. 예배마다 몇 명이 왔는지.'),
+    H('왜요?'),
+    L('docheol','angry','돈은 거짓말을 하지만, 머릿수는 거짓말을 안 하거든. 사람들이 떠나기 시작하면 제일 먼저 여기서 보여.'),
+    {p:null},
+    N('장부를 넘기자 날짜별 숫자가 빼곡하다. 그중 세 줄에 붉은 동그라미가 쳐져 있다.'),
+    {note:'1주년 기념 예배 — 21,000명\n2주년 기념 예배 — 34,000명\n3주년 전야 예배 — 42,000명'},
+    L('docheol','suspicious','세 번 다 역대 최고 인원이었다. 그리고 세 번 다, 그날 밤 의식실에서 무슨 일이 있었지.'),
+    L('docheol','neutral','1주년엔 아린이 성체 몸이 뜨겁다고 난리를 쳤고, 2주년엔 의식실 촛불이 한꺼번에 흔들렸다더라. 그리고 3주년 전야엔……'),
+    H('제가 쓰러졌죠.'),
+    L('docheol','neutral','그래. 난 숫자만 믿는다. 그런데 숫자가 이렇게 겹치면, 그건 우연이 아니라 공식이야.'),
+    {p:null},
+    {ev:'attend_ledger'},
+    {c:[
+      {t:'"왜 저한테 이걸 보여주는 거예요?"', go:'doc_r1_a'},
+      {t:'"그 동그라미, 언제부터 친 거예요?"', go:'doc_r1_b'}
+    ]}
+  ],
+  doc_r1_a:[
+    L('docheol','angry','네가 날 의심해서 찾아왔으니까. 의심받는 놈이 먼저 장부를 까는 게 제일 빨라.'),
+    L('docheol','neutral','그리고…… 너 말고는 보여줄 사람이 없다. 다들 자기 비밀 지키느라 바빠서.'),
+    {go:'doc_r1_c'}
+  ],
+  doc_r1_b:[
+    L('docheol','neutral','2주년 다음 날. 그때부터 무서웠다. 숫자가 무서운 건 처음이었지.'),
+    {go:'doc_r1_c'}
+  ],
+  doc_r1_c:[
+    L('docheol','neutral','증명하자. 아린한테 성체 간호 일지가 있을 거다. 날짜별로 체온까지 적는 녀석이니까. 그리고 녹음실에 예배 방송 기록이 있어. 그날 예배에서 뭘 했는지.'),
+    L('docheol','angry','난 여기서 숫자 맞춰 볼 테니까, 다 모아서 와.'),
+    {p:null},
+    N('의상실의 아린에게 간호 일지를 부탁하고, 녹음실에서 방송 기록을 확인해 보자.'),
+    {explore:'D1'}
+  ],
+  D1_doc:[L('docheol','angry','아직이냐? 간호 일지랑 방송 기록. 빨리.'),{p:null}],
+  D1_arin:[
+    L('arin','neutral','간호 일지요? ……도철 씨가 보냈구나. 그 사람, 그런 건 귀신같이 알아요.'),
+    {p:null},
+    N('아린이 서랍에서 작은 공책을 꺼냈다. 날짜마다 체온, 맥박, 특이 사항이 단정하게 적혀 있다.'),
+    L('arin','neutral','1주년 밤, 체온 39도. 해열제도 안 들었어요. 2주년 밤, 맥박이 평소의 두 배. 그리고 3주년 전야……'),
+    L('arin','sad','손가락이 움직였어요. 처음으로.'),
+    L('arin','neutral','그 세 날 말고는, 3년 내내 아무 일도 없었어요. 정말 하루도.'),
+    {p:null},
+    {ev:'care_log'}
+  ],
+  D1_arin_again:[L('arin','neutral','일지는 꼭 돌려줘요. 그거 제 3년이에요.'),{p:null}],
+  D_chant:[
+    N('녹음실 책상 위의 방송 기록부. 예배마다 무엇을 방송했는지, 원고는 누가 썼는지 적혀 있다.'),
+    N('1주년, 2주년, 3주년 전야. 세 날 모두에만 같은 순서가 들어 있었다.'),
+    {note:'호명 기도\n신도 전원이 교주님의 이름을\n백여덟 번 함께 부른다.'},
+    N('다른 날엔 없는 순서다. 그리고 원고 작성자 칸에는 하진의 이름 대신 이렇게 적혀 있었다.'),
+    {note:'원고 없음 — 즉흥\n(하은결)'},
+    {ev:'chant_log'}
+  ],
+  D1_eun:[
+    L('eungyeol','smile','하진 씨, 도철 씨랑 다닌다면서요? 숫자 얘기만 들으면 머리 아프죠.'),
+    H('호명 기도요. 그건 언제부터 한 거예요?'),
+    L('eungyeol','neutral','……1주년 때부터요. 신도들이 교주님을 너무 그리워해서요. 다 같이 이름을 부르면 가까워진 느낌이 든대요.'),
+    L('eungyeol','smile','제가 낸 아이디어예요. 반응이 정말 좋았어요. 다들 울면서 불렀거든요.'),
+    {p:null},
+    N('은결은 자랑스럽게 웃었다. 그 웃음이 이상하게 오래 남았다.')
+  ],
+  D1_eun_again:[L('eungyeol','smile','휘광제 때도 호명 기도는 해요. 이번엔 4만 명이니까, 엄청날 거예요.'),{p:null}],
+  D1_sian:[
+    L('sian','neutral','도철이랑 다닌다고. 그 녀석 사연은 들었나?'),
+    L('sian','neutral','어머니가 신도였다. 전 재산을 헌금하고 작년에 돌아가셨지. 도철은 원래 그 돈을 받으러 온 거다.'),
+    L('sian','neutral','받아 냈는지는 모르겠군. 3년째 안 떠나는 걸 보면.'),
+    {p:null}
+  ],
+  D1_sian_again:[L('sian','neutral','나머진 본인한테 물어.'),{p:null}],
+  D1_leo:[
+    L('leo','smile','도철 형? 겉으론 돈, 돈 하지만 신도들 이름을 다 외워. 4만 2천 명 중에 절반은 될걸.'),
+    L('leo','neutral','예배 끝나면 빈자리를 세더라. 누가 안 왔는지. 그다음 주에 그 사람이 오면 혼자 웃고.'),
+    {p:null}
+  ],
+  D1_leo_again:[L('leo','smile','형한텐 내가 말했다고 하지 마.'),{p:null}],
+  D_box:[
+    N('대예배당 입구의 낡은 헌금함. 손때 묻은 구멍 옆에 누군가 작게 적어 두었다.'),
+    {note:'엄마, 여기 있어요?'},
+    N('오래된 글씨가 번져 있다.')
+  ],
+
+  D_evening:[
+    {p:null},{bg:'chapel'},
+    N('저녁. 휘광제를 앞두고 작은 저녁 예배가 열렸다. 대예배당에 신도 3천 명이 모였다.'),
+    N('나는 대언자로 단상 옆에 섰다. 도철은 맨 뒤에서 계수기를 들고 머릿수를 세고 있다.'),
+    L('docheol','neutral','(……호명 기도 시작한다. 잘 봐 둬.)'),
+    {p:null},
+    N('스피커에서 은결의 목소리가, 아니, 교주의 목소리가 흘렀다.'),
+    L('eungyeol','neutral','「나의 이름을 불러라. 그리하면 나는 너희에게 돌아가리라.」'),
+    {p:null},
+    N('3천 명이 한목소리로 이름을 부르기 시작했다.'),
+    {note:'설유님.\n설유님.\n설유님.'},
+    N('한 번, 열 번, 서른 번. 이름이 쌓일 때마다 가슴 안쪽이 뜨거워졌다.'),
+    N('손끝이 저렸다. 귀가 먹먹하고, 촛불이 일제히 길게 늘어났다.'),
+    {p:'seolyu', e:'neutral'},
+    N('머릿속에서, 내 것이 아닌 목소리가 속삭였다.'),
+    N('「……더. 더 불러라.」'),
+    {p:null},
+    N('쉰 번. 예순 번. 숨이 막혔다. 다리가 풀렸다.'),
+    {bg:'chapel_lit'},
+    N('시야가 하얗게 터졌다.'),
+    {bg:'chapel'},
+    L('docheol','angry','야! 하진! 정신 차려!'),
+    {p:null},
+    N('눈을 떴을 때 나는 단상 뒤에 쓰러져 있었고, 도철이 내 어깨를 붙잡고 있었다. 기도는 이미 끝나 있었다.'),
+    L('docheol','shocked','너, 이름이 예순 번쯤 불렸을 때부터 이상했어. 숫자 세다가 봤다. 네 몸에서…… 빛이 났어.'),
+    L('docheol','neutral','3천 명이 예순 번 불러서 이 정도야. 4만 명이 백여덟 번 부르면?'),
+    {p:null},
+    N('대답할 수 없었다.'),
+    {ev:'prayer_surge'},
+    L('docheol','angry','……내일 얘기하자. 오늘은 가서 자. 명령이다.'),
+    {p:null},
+    {go:'D_d1'}
+  ],
+  D_d1:[
+    {day:1},{bg:'accounts'},
+    N('휘광제 D-1. 회계실.'),
+    N('도철은 밤새 계산기를 두드린 얼굴이었다. 책상 위엔 장부와 간호 일지 사본, 방송 기록이 나란히 놓여 있다.'),
+    L('docheol','neutral','밤새 다시 계산했다. 결론은 이거다.'),
+    L('docheol','angry','……다 우연이야. 그래야 해. 기도 같은 게 무슨 힘이 있어. 내가 3년 동안 센 게 그냥 사람 숫자여야 한다고.'),
+    {p:null},
+    N('도철은 숫자만 믿는다고 했다. 그런데 지금은 그 숫자로부터 도망치고 있다.'),
+    {trial:'doc'}
+  ],
+  D_t1_ok:[
+    H('한 번이 아니에요. 아린 씨 간호 일지를 보세요. 1주년엔 체온 39도, 2주년엔 맥박 두 배, 3주년 전야엔 손가락. 예배 인원이 최고였던 세 날, 세 번 다예요.'),
+    L('docheol','shocked','……'),
+    L('docheol','neutral','……세 번. 세 번이면 우연이 아니지. 그건 내가 제일 잘 알아.'),
+    L('docheol','angry','그래도! 그건 신도들이 자기들 좋아서 기도한 거야. 누가 노리고 한 게 아니라고!'),
+    {p:null},
+    {trial:'doc2'}
+  ],
+  D_t2_ok:[
+    H('방송 기록부를 보세요. 호명 기도는 그 세 날에만 있었어요. 원고 작성자 칸엔 제 이름 대신 \'원고 없음, 즉흥, 하은결\'이라고 적혀 있었고요.'),
+    L('docheol','shocked','……은결이?'),
+    H('교주님 목소리로 \'나의 이름을 불러라\'라고 한 것도, 은결 씨였어요.'),
+    L('docheol','neutral','……'),
+    {p:null},
+    N('도철이 계산기를 내려놓았다.'),
+    L('docheol','neutral','정리하자. 4만 명의 기도가 교주님을 깨우는 땔감이었다. 그리고 우리 여섯은 3년 동안 교주님이 계신 척 예배를 이어 왔지.'),
+    L('docheol','sad','……우리 거짓말이, 교주님을 되살리고 있었던 거야.'),
+    L('docheol','suspicious','그리고 누군가는 그걸 알고, 일부러 불을 지폈다.'),
+    H('은결 씨가…… 왜요?'),
+    L('docheol','neutral','모르지. 그건 내 장부엔 없는 숫자다.'),
+    L('docheol','neutral','……내가 왜 여기 눌러앉았는지, 말해 준 적 있냐.'),
+    {c:[
+      {t:'"시안 씨한테 들었어요. 어머니 얘기."', go:'D_mom_a'},
+      {t:'"아뇨. 처음 들어요."', go:'D_mom_b'}
+    ]}
+  ],
+  D_mom_a:[
+    L('docheol','angry','그 입 싼 탐정.'),
+    L('docheol','sad','……그래. 엄마가 여기 신도였다. 집 판 돈까지 다 바치고, 작년에 여기 신도석에서 기도하다가 돌아가셨지.'),
+    {go:'D_end'}
+  ],
+  D_mom_b:[
+    L('docheol','sad','엄마가 여기 신도였다. 집 판 돈까지 다 바치고, 작년에 여기 신도석에서 기도하다가 돌아가셨어.'),
+    {go:'D_end'}
+  ],
+  D_end:[
+    L('docheol','neutral','난 그 돈을 받으러 왔다. 채권 추심원답게. 근데 와서 보니까, 엄마 같은 사람이 4만 명이더라.'),
+    L('docheol','sad','다들 갈 데가 없어서 여기 온 사람들이야. 이 교단이 무너지면 그 사람들도 무너져. 그래서 숨기는 걸 도왔다. 장부를 맞추고, 기자 입을 막고.'),
+    L('docheol','neutral','그런데 그 사람들 기도가, 사람 하나를 깨우는 땔감이었다니.'),
+    {p:null},
+    N('도철이 장부 맨 뒤 페이지를 펼쳤다. 3년 동안 헌금한 신도들의 이름과 금액이 빼곡하다.'),
+    L('docheol','neutral','휘광제 끝나면, 이거 들고 신도들 앞에 설 거다. 돈 돌려주겠다고.'),
+    H('그러면 교단이 무너질 텐데요.'),
+    L('docheol','smile','빚쟁이는 빚을 받는 사람이지, 남의 믿음을 빌려 쓰는 사람이 아니거든.'),
+    L('docheol','neutral','이번엔 내가 갚을 차례다.'),
+    {p:null},
+    N('도철은 장부 맨 첫 장에 적힌 이름 하나를 손가락으로 오래 쓸었다. 강씨 성의, 오래된 이름이었다.'),
+    {ending:'빚 청산'},
+    {secret:'docheol'}
+  ],
+
+
+  /* ===================== 하은결 루트 ===================== */
+  eun_r1:[
+    {day:2},{bg:'studio'},
+    N('휘광제 D-2. 아침. 녹음실.'),
+    L('eungyeol','smile','왔어요? 앉아요. 오늘부터 입 모양 연습이에요.'),
+    L('eungyeol','neutral','제가 장막 뒤에서 말하면, 하진 씨는 단상에서 입만 맞추면 돼요. 쉬워 보이죠? 근데 한 박자만 어긋나도 신도들은 귀신같이 알아요.'),
+    {p:null},
+    N('은결이 마이크 앞에 섰다. 나는 맞은편 거울 앞에서 입 모양을 맞췄다.'),
+    L('eungyeol','smile','「빛은 떠나지 않는다.」 ……좋아요. 「다만 너희가 눈을 감았을 뿐이다.」 음, 조금 빨라요.'),
+    {p:null},
+    N('한 시간쯤 지났을까. 은결이 원고를 내려놓았다.'),
+    L('eungyeol','neutral','마지막으로 하나만 더. 휘광제 마무리 구절이에요.'),
+    L('eungyeol','smile','「돌아오는 자는 이름을 잃고, 이름을 부르는 자는 몸을 얻으리라.」'),
+    {p:null},
+    N('원고에는 없는 문장이었다. 처음 듣는데도, 뒷문장이 혀끝까지 차올랐다.'),
+    {c:[
+      {t:'"그거…… 원고에 없는 문장이죠?"', go:'eun_r1_a'},
+      {t:'조용히 다음 문장을 떠올려 본다.', set:'echo2', go:'eun_r1_b'}
+    ]}
+  ],
+  eun_r1_a:[
+    L('eungyeol','shocked','……'),
+    L('eungyeol','smile','경전 마지막 장, 귀환장이에요. 공개 안 된 장이라 원고엔 안 넣어요. 교주님이 옛날에 들려주신 걸 외웠을 뿐이에요.'),
+    {p:null},
+    N('이상했다. 공개된 적 없는 장을, 측근 중 누가 알고 있다는 이야기는 들은 적이 없었다.'),
+    {go:'eun_r1_c'}
+  ],
+  eun_r1_b:[
+    N('「……그리하여 빛은 새 그릇에 담기리라.」'),
+    N('입 밖으로 내지는 않았다. 하지만 은결은 내 입술이 움직이는 걸 본 것 같았다.'),
+    L('eungyeol','neutral','……방금, 뭐라고 했어요?'),
+    H('아, 아무것도요.'),
+    L('eungyeol','smile','그래요? ……그럼 됐어요.'),
+    {go:'eun_r1_c'}
+  ],
+  eun_r1_c:[
+    L('eungyeol','smile','오늘 연습은 여기까지. 전 대예배당에서 스피커 점검이 있어서요. 녹음실은 마음대로 써도 돼요.'),
+    {p:null},
+    {ev:'return_verse'},
+    N('은결이 나간 녹음실에 혼자 남았다. 이상하게, 이 방의 공기가 무언가를 숨기고 있는 것 같았다.'),
+    N('녹음실을 살펴보고, 측근들에게 은결에 대해 물어보자. 하진의 방도 확인해 볼 만하다.'),
+    {explore:'E1'}
+  ],
+  E_panel:[
+    N('벽을 덮은 방음재 중 하나가 미세하게 들떠 있다. 손으로 누르자, 판 전체가 안쪽으로 밀렸다.'),
+    N('방음재 뒤로 사람 하나 겨우 지나갈 좁은 통로가 이어져 있었다.\n차가운 공기와 함께 촛불 냄새가 흘러나온다. 의식실의 냄새다.'),
+    {ev:'passage'},
+    N('통로 바닥에 먼지 쌓인 릴 테이프 하나가 놓여 있었다. 선반의 비어 있던 맨 끝 칸, 딱 그 크기였다.'),
+    {note:'연습 — 빛의 의식\n(3년 전)'},
+    N('녹음기에 걸었다. 교주의 목소리가 의식 주문을 읊는다. 같은 구절을 몇 번이고 되풀이하며 고친다. 연습하는 소리다.'),
+    N('그리고 주문의 마지막 구절.'),
+    {note:'빛이여, 새 그릇으로 옮겨 가라.\n그릇의 이름은 ……하은결.'},
+    N('이름을 말하는 순간, 교주의 목소리가 흔들리며 원래 목소리가 드러났다. 은결의 목소리였다.'),
+    {ev:'practice_tape'}
+  ],
+  E_reels:[N('선반 맨 끝의 빈 칸. 먼지 자국만 네모나게 남아 있다.')],
+  E_drawer:[
+    N('하진의 책상 서랍. 맨 아래 칸 밑판에 봉투 하나가 테이프로 붙어 있었다.'),
+    N('봉투 안에는 접힌 종이. 기울어진 단정한 글씨, 교주의 필체다.'),
+    {note:'빛의 의식 주문 — 대언자 보관용\n빛이여, 새 그릇으로 옮겨 가라.\n그릇의 이름은 유하진.'},
+    N('3년 전, 교주가 하진에게 맡긴 사본이다. 하진은 이걸 아무도 모르게 숨겨 두고 있었다.'),
+    {ev:'rite_copy'}
+  ],
+  E1_eun:[
+    L('eungyeol','smile','스피커 점검 중이에요. 휘광제 땐 4만 명한테 들려야 하니까. 녹음실은 편하게 써요.'),
+    L('eungyeol','neutral','……아, 벽 쪽 방음재는 만지지 마요. 낡아서 떨어지면 다시 붙이기 힘들거든요.'),
+    {p:null}
+  ],
+  E1_eun_again:[L('eungyeol','smile','저 바빠요, 하진 씨. 나중에요.'),{p:null}],
+  E1_leo:[
+    L('leo','neutral','은결이? ……하진, 그거 알아? 3년 전 의식 날 밤, 의식실 쪽에서 주문 소리가 들렸어.'),
+    L('leo','neutral','교주님 목소리였는데, 중간중간 다른 목소리가 섞였지. 젊은 여자 목소리. 그땐 내가 잘못 들은 줄 알았어.'),
+    L('leo','sad','……지금 생각해 보면, 잘못 들은 게 아니었나 보네.'),
+    {p:null},
+    {ev:'leo_voice'}
+  ],
+  E1_leo_again:[L('leo','neutral','나도 그 이상은 몰라. 진짜야.'),{p:null}],
+  E1_doc:[
+    L('docheol','neutral','은결? 그 녀석 회계 쪽으론 깔끔해. 근데 하나 걸리는 게 있지.'),
+    L('docheol','suspicious','3년 동안 교주님 서명이 필요한 서류가 생기면, 은결이 받아 갔어. "제가 처리할게요" 하면서. 난 하진 네가 흉내 내서 서명하는 줄 알았다.'),
+    L('docheol','neutral','근데 금고에 있는 1925년 땅 문서 서명이랑 비교해 보니까, 너무 똑같아. 흉내 낸 글씨가 아니야. 그 사람이 직접 쓴 글씨야.'),
+    {p:null},
+    {ev:'forged_sign'}
+  ],
+  E1_doc_again:[L('docheol','angry','서류는 다 금고에 있다. 더 볼 것도 없어.'),{p:null}],
+  E1_arin:[
+    L('arin','neutral','은결 씨요? ……작년에 치수 노트를 보여 달라고 한 적이 있어요.'),
+    L('arin','sad','자기 칸을 한참 들여다보더라고요. 동그라미 하나를요. 그러고는 웃었어요. "아깝다" 하고.'),
+    {p:null}
+  ],
+  E1_arin_again:[L('arin','neutral','……저도 그 이상은 몰라요.'),{p:null}],
+  E1_sian:[
+    L('sian','neutral','하은결의 알리바이 말이군. 3년 전 의식 날 밤, 녹음실 문 앞 카메라에 은결이 들어가는 게 찍혀 있다. 그리고 밤새 한 번도 나오지 않았지.'),
+    L('sian','suspicious','완벽한 알리바이다. 너무 완벽해서 마음에 안 들 정도로.'),
+    {p:null}
+  ],
+  E1_sian_again:[L('sian','neutral','카메라는 문만 찍는다. 벽은 안 찍지.'),{p:null}],
+
+  E_evening:[
+    {p:null},{bg:'studio'},
+    N('밤. 녹음실 불은 아직 켜져 있었다.'),
+    L('eungyeol','smile','왔네요. 밤 연습 하러 온 거죠?'),
+    {p:null},
+    N('은결은 방음재 쪽을 한 번 보고, 다시 나를 보았다. 아무것도 묻지 않았다.'),
+    L('eungyeol','neutral','내일이면 D-1이에요. 그리고 모레면 휘광제.'),
+    L('eungyeol','neutral','하진 씨. 휘광제 때 호명 기도가 끝나면, 무대 위에 서 있기만 하면 돼요. 아무것도 하지 말고. 그냥 서 있어요. 약속해요?'),
+    {c:[
+      {t:'"……왜요?"', go:'E_eve_a'},
+      {t:'"약속할게요."', go:'E_eve_b'}
+    ]}
+  ],
+  E_eve_a:[L('eungyeol','smile','그게 제일 안전하니까요.'),{go:'E_eve_c'}],
+  E_eve_b:[L('eungyeol','smile','착하다.'),{go:'E_eve_c'}],
+  E_eve_c:[
+    {p:null},
+    N('은결의 웃음은 언제나처럼 다정했다. 그래서 더 무서웠다.'),
+    {go:'E_d1'}
+  ],
+  E_d1:[
+    {day:1},{bg:'studio'},
+    N('휘광제 D-1. 녹음실.'),
+    N('나는 은결 앞에 릴 테이프와 의식문 사본을 내려놓았다.'),
+    L('eungyeol','shocked','……'),
+    L('eungyeol','smile','방음재, 만지지 말라고 했는데.'),
+    L('eungyeol','neutral','좋아요. 물어봐요. 대답해 줄게요.'),
+    {p:null},
+    {trial:'eun'}
+  ],
+  E_t1_ok:[
+    H('교주님이 하진 씨에게 맡긴 의식문 사본이에요. \'그릇의 이름은 유하진.\' 그런데 은결 씨 테이프에선 그 자리에 은결 씨 이름이 들어가 있었어요.'),
+    L('eungyeol','shocked','……'),
+    L('eungyeol','smile','하진 씨가 그걸 갖고 있었구나. 그건 몰랐네.'),
+    L('eungyeol','neutral','그래도 연습은 연습일 뿐이에요. 의식 날 밤, 전 녹음실에서 한 발짝도 안 나갔어요. 시안 씨 카메라가 증명해 줄걸요?'),
+    {p:null},
+    {trial:'eun2'}
+  ],
+  E_t2_ok:[
+    H('방음재 뒤에 통로가 있었어요. 녹음실에서 의식실로 바로 이어지는 길이요. 카메라는 문만 찍잖아요.'),
+    H('레오 씨도 그날 밤 주문 속에서 젊은 여자 목소리를 들었대요.'),
+    {p:null},
+    N('은결이 처음으로 웃음을 거두었다.'),
+    L('eungyeol','neutral','……그 통로, 교주님만 아시던 길이에요. 측근 누구한테도 알려 주지 않으셨죠.'),
+    H('그럼 은결 씨는 어떻게 알았어요? 귀환장도, 교주님 서명도.'),
+    L('eungyeol','sad','기억은 물 같은 거예요, 하진 씨. 그릇이 깨지면 쏟아지죠. 그리고 쏟아진 물은, 가까이 있는 그릇에 담겨요.'),
+    L('eungyeol','neutral','3년 전 그날 밤, 저는 거기 있었어요. 아주 가까이.'),
+    H('……주문을 바꾼 거군요. 교주님이 하진 씨 대신 은결 씨한테 오도록.'),
+    L('eungyeol','smile','하진 씨 기억이 없는 이유, 이제 알겠죠? 의식이 찢어졌거든요. 반은 하진 씨한테, 반은…… 저한테.'),
+    L('eungyeol','neutral','그러니까 휘광제 날, 무대 위에 가만히 서 있어요. 그게 하진 씨를 위한 거예요.'),
+    {p:null},
+    N('은결은 그 말만 남기고 녹음실을 나갔다. 무엇을 하려는지는 끝내 말하지 않았다.'),
+    {go:'E_end'}
+  ],
+  E_end:[
+    {bg:'studio'},
+    N('그날 밤 늦게, 녹음실에서 노랫소리가 새어 나왔다.'),
+    N('문틈으로 보니, 은결이 불 꺼진 녹음실에 혼자 앉아 낮게 노래하고 있었다. 마이크도 켜지 않은 채.'),
+    L('eungyeol','sad','「별이 잠들면 등불을 끄자. 바람이 오면 문을 닫자.」'),
+    {p:null},
+    N('처음 듣는 노래였다. 그런데 다음 소절이, 숨 쉬듯 떠올랐다.'),
+    {c:[
+      {t:'떠오르는 대로 따라 부른다.', set:'lullaby', go:'E_sing'},
+      {t:'숨을 죽이고 듣기만 한다.', go:'E_listen'}
+    ]}
+  ],
+  E_sing:[
+    {meta:'lullaby'},
+    H('「……네가 울면 내가 깨어 있을게. 아침이 와도 여기 있을게.」'),
+    L('eungyeol','shocked','……!'),
+    {p:null},
+    N('은결이 돌아보았다. 어둠 속에서도 얼굴이 하얗게 질린 게 보였다.'),
+    L('eungyeol','sad','……그 노래를, 어떻게.'),
+    {p:null},
+    N('은결은 한참 나를 바라보다가, 굳은 얼굴로 일어섰다.'),
+    L('eungyeol','neutral','……역시, 아직 다 가져오지 못했구나.'),
+    {p:null},
+    N('은결은 내 옆을 지나 복도 끝으로 사라졌다. 그 말이 무슨 뜻인지 물을 틈도 없었다.'),
+    {go:'E_fin'}
+  ],
+  E_listen:[
+    N('노래가 끝날 때까지 숨을 죽였다. 은결은 마지막 소절을 부르지 않고 멈췄다.'),
+    L('eungyeol','sad','……이 다음을 아는 사람은, 이제 세상에 없어.'),
+    {p:null},
+    N('은결은 오래도록 어둠 속에 앉아 있었다. 나는 그 노래의 다음 소절을 끝내 입 밖에 내지 않았다.'),
+    {go:'E_fin'}
+  ],
+  E_fin:[
+    {ending:'목소리의 주인'},
+    {secret:'eungyeol'}
+  ],
+
+
+  /* ===================== 최종장 · 기억으로 맺는 약속 ===================== */
+  F_open:[
+  {
+    "bg": "ritual"
+  },
+  {
+    "day": 3
+  },
+  {
+    "n": "차갑다. 눈을 뜨기 전에, 바닥의 차가움부터 알았다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "shocked",
+    "t": "하진 씨. 들려요? 눈 좀 떠 봐요."
+  },
+  {
+    "n": "처음 깨어났던 그날이다. 같은 장막, 같은 촛대, 나를 부르는 같은 목소리. 하지만 이번에는 기억이 있다."
+  },
+  {
+    "n": "레오의 떨리는 손. 시안이 내게 건넨 사진. 아린이 지운 화장. 도철이 펼친 장부. 은결이 삼킨 마지막 노랫말."
+  },
+  {
+    "s": "hajin",
+    "t": "……휘광제까지, 사흘 남았죠?"
+  },
+  {
+    "s": "sian",
+    "e": "suspicious",
+    "t": "날짜는 기억하는군. 그런데 왜 그렇게 놀라지?"
+  },
+  {
+    "s": "hajin",
+    "t": "아직 일어나지 않은 일을 기억하는 것 같아서요."
+  },
+  {
+    "s": "docheol",
+    "e": "angry",
+    "t": "쓰러졌다 깨더니 헛소리까지 하냐! 일단 앉아!"
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "성체 쪽으로 기대지 마요. 내가 받칠 테니까."
+  },
+  {
+    "s": "leo",
+    "e": "smile",
+    "t": "오늘의 기상 공연은 꽤 과격하네. 관객도 배우도 숨부터 고르자고."
+  },
+  {
+    "n": "아무도 나와 함께 보냈던 사흘을 기억하지 못한다. 이 사람들에게 나는 그저 갑자기 이상한 말을 하는 하진이다."
+  },
+  {
+    "s": "hajin",
+    "t": "이번에는 결과를 아는 사람처럼 명령하지 않을게요. 여러분이 무엇을 지키고 싶었는지, 제가 먼저 말할게요."
+  },
+  {
+    "give": [
+      "note",
+      "album",
+      "measure",
+      "tap",
+      "chant_log",
+      "practice_tape",
+      "rite_copy",
+      "passage",
+      "leo_voice",
+      "candles"
+    ]
+  },
+  {
+    "n": "기억 속 단서를 적었다. 이것은 아직 오늘의 사람들에게 확인받지 않은 기록이다. 기억만으로 누구에게도 믿음을 강요할 수 없다."
+  },
+  {
+    "if": "finalLullaby",
+    "then": "F_memory_song",
+    "else": "F_memory_plain"
+  }
+],
+  F_memory_song:[
+  {
+    "n": "그리고 자장가. 은결이 부르지 않은 끝 소절까지 내 안에 남아 있다."
+  },
+  {
+    "give": [
+      "lullaby_mem"
+    ]
+  },
+  {
+    "go": "F_memory_plain"
+  }
+],
+  F_memory_plain:[
+  {
+    "bg": "hajin_room"
+  },
+  {
+    "s": "hajin",
+    "t": "네 사람을 먼저 만나자. 각자가 바랐던 삶을, 이번에는 함께 선택할 수 있도록."
+  },
+  {
+    "n": "설득은 심문과 다르다. 틀린 말을 찾아 꺾는 것이 아니라, 두려움과 바람을 듣고 함께할 이유를 찾는 일이다."
+  },
+  {
+    "explore": "FP1"
+  }
+],
+  F_day2:[
+  {
+    "bg": "hajin_room"
+  },
+  {
+    "n": "두 사람은 내 말을 믿어 주었다. 오늘 나머지 모두를 몰아붙이지는 않기로 했다. 서로 생각할 시간이 필요하다."
+  },
+  {
+    "s": "hajin",
+    "t": "나도 누군가의 몸을 쓰고 있어. 서두른다는 이유로 그들의 선택까지 빼앗을 수는 없어."
+  },
+  {
+    "bg": "black"
+  },
+  {
+    "n": "밤새 기억을 적었다. 누가 무엇을 말했는지보다, 그 말을 할 때 무엇을 포기하려 했는지."
+  },
+  {
+    "day": 2
+  },
+  {
+    "bg": "hajin_room"
+  },
+  {
+    "n": "다음 날 아침. 먼저 손을 내민 두 사람에게서 짧은 답이 왔다. 「약속한 것은 준비해 둘게. 나머지 사람들도 데려와.」"
+  },
+  {
+    "s": "hajin",
+    "t": "아직 함께하지 않은 두 사람을 만나자."
+  },
+  {
+    "explore": "FP2"
+  }
+],
+  FP_leo:[
+  {
+    "s": "leo",
+    "e": "smile",
+    "t": "날 막으러 왔어? 아니면 기적을 주문하러? 어느 쪽이든 예약은 필요해."
+  },
+  {
+    "s": "hajin",
+    "t": "축제가 끝나면 거리로 돌아가고 싶다고 했죠. 사람들이 속았다는 걸 알면서도 웃어 주는 곳으로."
+  },
+  {
+    "s": "leo",
+    "e": "shocked",
+    "t": "……누구한테 들었지? 그 말은 입 밖에 낸 적 없는데."
+  },
+  {
+    "s": "hajin",
+    "t": "설명하기 어려운 기억이 있어요. 하지만 제가 미래를 안다는 말만 믿어 달라는 건 아니에요."
+  },
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "난 남을 감쪽같이 속이는 인간이야. 그런 나한테 뭘 맡기겠다는 건데?"
+  },
+  {
+    "n": "레오가 무대를 떠나려는 마음에 어떤 말로 답할까?"
+  },
+  {
+    "c": [
+      {
+        "t": "네 장치니까 사고가 나면 전부 네 책임이야.",
+        "go": "FP_leo_retry"
+      },
+      {
+        "t": "사람을 웃게 한 건 네 마술이었어. 이번엔 그 손으로 관객을 살려 줘.",
+        "go": "FP_leo_ok"
+      },
+      {
+        "t": "진짜 기적을 만들 수 없으니 내 명령대로 해.",
+        "go": "FP_leo_retry"
+      }
+    ]
+  }
+],
+  FP_leo_retry:[
+  {
+    "s": "leo",
+    "e": "suspicious",
+    "t": "협박은 조명보다 쉽게 구별해. 그 말을 듣고 네 옆에 서고 싶어질 것 같아?"
+  },
+  {
+    "s": "hajin",
+    "t": "미안해요. 당신이 두려워하는 걸 듣지 않고 제 말부터 했어요."
+  },
+  {
+    "c": [
+      {
+        "t": "다시 듣고 내 뜻을 설명한다.",
+        "go": "FP_leo"
+      },
+      {
+        "t": "생각할 시간을 갖고 나중에 돌아온다.",
+        "go": "FP_pause"
+      }
+    ]
+  }
+],
+  FP_leo_ok:[
+  {
+    "s": "leo",
+    "e": "sad",
+    "t": "웃게 한 건…… 내 마술이었다고."
+  },
+  {
+    "s": "hajin",
+    "t": "당신이 다 거짓이었다고 생각하지 않아요. 다만 이번 공연에서 사람을 다치게 하는 장치는 멈춰 줘요."
+  },
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "좋아. 방송은 내가 끊고, 후광 장치에는 보조 걸쇠를 달게. 아무도 내 무대에서 죽게 두지 않겠어."
+  },
+  {
+    "s": "leo",
+    "e": "smile",
+    "t": "휘광제 다음 날, 작은 광장에서 공연할 거야. 너도 와. 입장료는 박수 한 번."
+  },
+  {
+    "set": "ally_leo"
+  },
+  {
+    "n": "그가 협력하기로 한 이유를 기억에 새겼다. 「사람을 살리는 마지막 마술」"
+  }
+],
+  FP_leo_again:[
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "약속은 기억하고 있어. 아직 마음을 정하지 못한 사람부터 만나 봐."
+  }
+],
+  FP_sian:[
+  {
+    "s": "sian",
+    "e": "suspicious",
+    "t": "또 오른손. 기억을 잃었다더니 이제 미래까지 안다고?"
+  },
+  {
+    "s": "hajin",
+    "t": "당신이 수갑 대신 사진을 건네며 한 말이 기억나요. 이번엔 다르게 끝내라고."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "한 적 없는 말이다. 그래도 내가 할 법한 말이군."
+  },
+  {
+    "s": "hajin",
+    "t": "그러니까 믿으라고 하지 않을게요. 의식실 카메라의 사각과 녹음실 통로를 직접 확인해 주세요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "확인은 한다. 하지만 네 결론에 맞춰 증거를 버리지는 않아. 네가 위험한 쪽이면 너부터 막는다."
+  },
+  {
+    "n": "시안이 지키려는 원칙에 어떻게 답할까?"
+  },
+  {
+    "c": [
+      {
+        "t": "기록을 전부 태우면 아무도 우리를 의심하지 못해.",
+        "go": "FP_sian_retry"
+      },
+      {
+        "t": "나도 조사해. 기록을 남기고, 이번에는 사람이 사라지기 전에 함께 막자.",
+        "go": "FP_sian_ok"
+      },
+      {
+        "t": "내 기억이 증거보다 정확하니 확인은 필요 없어.",
+        "go": "FP_sian_retry"
+      }
+    ]
+  }
+],
+  FP_sian_retry:[
+  {
+    "s": "sian",
+    "e": "suspicious",
+    "t": "그건 조사 요청이 아니다. 은폐 요청이다. 다시 말해."
+  },
+  {
+    "s": "hajin",
+    "t": "미안해요. 당신이 두려워하는 걸 듣지 않고 제 말부터 했어요."
+  },
+  {
+    "c": [
+      {
+        "t": "다시 듣고 내 뜻을 설명한다.",
+        "go": "FP_sian"
+      },
+      {
+        "t": "생각할 시간을 갖고 나중에 돌아온다.",
+        "go": "FP_pause"
+      }
+    ]
+  }
+],
+  FP_sian_ok:[
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "자기 말도 의심하라는 건가."
+  },
+  {
+    "s": "hajin",
+    "t": "네. 누구든 몸을 빼앗고 기록을 지우는 일을 끝내고 싶어요. 저도 예외는 아니에요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "좋다. 네 기억은 가설로 기록한다. 통로와 출입 시간은 내가 확인하겠다."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "지킬 사람은 진실 뒤에 숨지 않는다. 오늘은 네가 도망치지 않았으니, 나도 여기 있지."
+  },
+  {
+    "set": "ally_sian"
+  },
+  {
+    "n": "그가 협력하기로 한 이유를 기억에 새겼다. 「기록보다 사람을 남기는 선택」"
+  }
+],
+  FP_sian_again:[
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "약속은 기억하고 있어. 아직 마음을 정하지 못한 사람부터 만나 봐."
+  }
+],
+  FP_arin:[
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "또 성체 이야기예요? 저도 피곤해요. 닦고 입히고 숨 쉬는지 확인하는 데 하루가 다 가요."
+  },
+  {
+    "s": "hajin",
+    "t": "그 손가락이 두 번 움직일 거예요. 그 안에 있는 사람은 하진이에요."
+  },
+  {
+    "s": "arin",
+    "e": "shocked",
+    "t": "……지금 당신 입으로 그런 말을 하면 내가 어떤 얼굴을 해야 해요?"
+  },
+  {
+    "s": "hajin",
+    "t": "그 몸은 은우의 몸이고, 지금 그 안에는 하진이 있어요. 저는 이 몸을 돌려줘야 해요."
+  },
+  {
+    "s": "arin",
+    "e": "sad",
+    "t": "그 이야기를 믿고 잘못 건드리면요? 삼 년 동안 지킨 사람을 내 손으로 잃으면요?"
+  },
+  {
+    "n": "아린이 돌봐 온 시간을 어떻게 존중할까?"
+  },
+  {
+    "c": [
+      {
+        "t": "성체는 빈 껍데기니까 그냥 무대에 세워 줘.",
+        "go": "FP_arin_retry"
+      },
+      {
+        "t": "성체를 신처럼 꾸미지 않아도 돼. 살아 있는 하진을 함께 지키고 몸을 돌려주자.",
+        "go": "FP_arin_ok"
+      },
+      {
+        "t": "옷과 화장만 맡아. 의식은 우리가 알아서 할게.",
+        "go": "FP_arin_retry"
+      }
+    ]
+  }
+],
+  FP_arin_retry:[
+  {
+    "s": "arin",
+    "e": "suspicious",
+    "t": "이름을 모른다고 사람이 아닌 게 아니에요. 그렇게 말하면 도와줄 수 없어요."
+  },
+  {
+    "s": "hajin",
+    "t": "미안해요. 당신이 두려워하는 걸 듣지 않고 제 말부터 했어요."
+  },
+  {
+    "c": [
+      {
+        "t": "다시 듣고 내 뜻을 설명한다.",
+        "go": "FP_arin"
+      },
+      {
+        "t": "생각할 시간을 갖고 나중에 돌아온다.",
+        "go": "FP_pause"
+      }
+    ]
+  }
+],
+  FP_arin_ok:[
+  {
+    "s": "arin",
+    "e": "sad",
+    "t": "사람이라고 불러 주네요. 그렇게 불러 주는 사람이 필요했어요."
+  },
+  {
+    "s": "hajin",
+    "t": "당신이 지킨 건 장식이 아니에요. 돌아갈 수 있는 몸과, 그 안에서 기다린 사람의 시간이었어요."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "먼저 손가락 신호를 확인할게요. 동의를 확인하지 않고는 아무 의식도 안 해요."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "나는 성체를 무대에서 내리고 침대를 준비할게요. 하진 씨도, 돌아올 사람도, 둘 다 누울 자리가 있게."
+  },
+  {
+    "set": "ally_arin"
+  },
+  {
+    "n": "그가 협력하기로 한 이유를 기억에 새겼다. 「신이 아니라 사람을 돌보는 일」"
+  }
+],
+  FP_arin_again:[
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "약속은 기억하고 있어. 아직 마음을 정하지 못한 사람부터 만나 봐."
+  }
+],
+  FP_docheol:[
+  {
+    "s": "docheol",
+    "e": "angry",
+    "t": "무슨 큰일을 꾸미든 돈 없다는 말부터 한다! 휘광제 비용이 얼만데!"
+  },
+  {
+    "s": "hajin",
+    "t": "당신이 더 무서워하는 숫자는 돈이 아니라 참석자 수잖아요."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "……장부 봤냐?"
+  },
+  {
+    "s": "hajin",
+    "t": "기도 인원이 늘 때마다 성체가 달라졌어요. 축제 날에는 그 힘으로 또 누군가의 몸을 빼앗을 수 있어요."
+  },
+  {
+    "s": "docheol",
+    "e": "angry",
+    "t": "그렇다고 사람들한테 다 거짓이었다고 하면? 밥 굶어 헌금한 사람들한테 내가 뭐라고 하냐!"
+  },
+  {
+    "n": "도철이 갚으려는 빚은 무엇일까?"
+  },
+  {
+    "c": [
+      {
+        "t": "헌금은 이미 썼으니 들키지만 않으면 돼.",
+        "go": "FP_docheol_retry"
+      },
+      {
+        "t": "남의 믿음을 더 빌리지 말자. 장부를 열고, 사람들을 안전하게 보내고, 함께 갚자.",
+        "go": "FP_docheol_ok"
+      },
+      {
+        "t": "넌 빚쟁이니까 신도들의 마음은 몰라도 돼.",
+        "go": "FP_docheol_retry"
+      }
+    ]
+  }
+],
+  FP_docheol_retry:[
+  {
+    "s": "docheol",
+    "e": "suspicious",
+    "t": "내가 돈만 세는 놈으로 보여? 그 숫자마다 사람이 있다고!"
+  },
+  {
+    "s": "hajin",
+    "t": "미안해요. 당신이 두려워하는 걸 듣지 않고 제 말부터 했어요."
+  },
+  {
+    "c": [
+      {
+        "t": "다시 듣고 내 뜻을 설명한다.",
+        "go": "FP_docheol"
+      },
+      {
+        "t": "생각할 시간을 갖고 나중에 돌아온다.",
+        "go": "FP_pause"
+      }
+    ]
+  }
+],
+  FP_docheol_ok:[
+  {
+    "s": "docheol",
+    "e": "sad",
+    "t": "빌린 믿음에도 만기가 있다는 말이네."
+  },
+  {
+    "s": "hajin",
+    "t": "당신 혼자 갚으라는 게 아니에요. 숨긴 사람들 모두 이름을 적고 책임지자고요."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "좋아. 출구마다 사람 세워 놓고, 환불 장부도 따로 만들지. 혼란 나면 내가 앞에 선다."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "겁나서 안 하는 건 이제 끝이다. 빚쟁이는 빚을 받는 사람이지, 남의 믿음을 빌려 쓰는 사람이 아니거든."
+  },
+  {
+    "set": "ally_docheol"
+  },
+  {
+    "n": "그가 협력하기로 한 이유를 기억에 새겼다. 「믿음에 진 빚을 갚는 일」"
+  }
+],
+  FP_docheol_again:[
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "약속은 기억하고 있어. 아직 마음을 정하지 못한 사람부터 만나 봐."
+  }
+],
+  FP_pause:[
+  {
+    "n": "대화를 멈추었다. 함께할 이유를 아직 찾지 못했다. 다시 찾아올 수 있다."
+  }
+],
+  F_allies:[
+  {
+    "bg": "hajin_room"
+  },
+  {
+    "n": "네 사람이 작은 방에 모였다. 레오는 장치 도면을, 시안은 확인한 통로 기록을, 아린은 간호 일지를, 도철은 예배 집계표를 가져왔다."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "따로 들은 말부터 맞추자. 서로 모르는 사실이 있으면 지금 공개해."
+  },
+  {
+    "s": "hajin",
+    "t": "교주는 오랫동안 몸을 바꾸는 의식을 해 왔어요. 2016년에는 은우의 몸을 빼앗았죠. 은우의 영혼은 사라지지 않고 억눌린 채 남아 있었어요."
+  },
+  {
+    "s": "hajin",
+    "t": "3년 전, 다음 몸인 하진에게 옮겨가려는 의식에 은결이 개입했어요. 그릇의 이름을 자기 이름으로 바꾼 거예요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "연습 테이프와 원래 의식문. 은결이 두 이름을 다르게 읽은 이유가 그거군."
+  },
+  {
+    "s": "hajin",
+    "t": "의식이 찢어지면서 교주의 영혼은 소멸했어요. 교주의 기억만 갈라져 남았고, 풀려난 은우의 영혼은 하진의 몸으로, 하진은 은우의 몸으로 옮겨졌어요."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "그러니까 내가 지킨 몸 안에는 하진 씨가 있고…… 지금 내 앞에 선 사람은 은우 씨일 수 있다는 거네요."
+  },
+  {
+    "s": "hajin",
+    "t": "네. 다만 은결에게는 저를 알아볼 마지막 기억을 직접 전해야 해요. 남의 기억을 가졌다는 사실과 그 사람이라는 사실은 다르니까요."
+  },
+  {
+    "s": "leo",
+    "e": "sad",
+    "t": "그럼 우리가 삼 년 동안 깨우려던 건 신이 아니라, 뒤섞인 기억과 두 사람이었네."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "돈도, 방송도, 무대도 우리가 붙들고 있었지. 은결 하나 잡아 던지고 끝낼 일이 아니네."
+  },
+  {
+    "s": "hajin",
+    "t": "모두에게 진실을 말하고 끝내요. 은결도 새로운 그릇이 되게 두지 말아요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "계획 확인. 나는 통로와 당김줄. 레오는 장치. 아린은 두 사람의 몸. 도철은 출구와 신도."
+  },
+  {
+    "day": 1
+  },
+  {
+    "n": "다음 날은 준비에 썼다. 시안은 기록을 대조하고, 아린은 성체의 손가락으로 하진의 의사를 확인했다. 레오와 도철은 안전 걸쇠와 피난 통로를 점검했다."
+  },
+  {
+    "n": "그리고 세 번째 아침이 왔다. 이번에는 혼자가 아니었다."
+  },
+  {
+    "day": 0
+  },
+  {
+    "bg": "hajin_room"
+  },
+  {
+    "explore": "F1"
+  }
+],
+  F_leo:[
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "약속대로 보조 걸쇠는 준비했어. 그런데 이 수정 큐시트, 은결이 어젯밤 놓고 갔어."
+  },
+  {
+    "note": "호명 기도 108번째\n특수효과: 장치 낙하\n작성: 하은결"
+  },
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "내 안전 점검 뒤에 당김줄까지 바꿔 놨어. 지금 뜯으면 바로 떨어질 수 있어. 네가 은결을 붙잡는 동안 내가 고정할게."
+  },
+  {
+    "s": "hajin",
+    "t": "왜 도와주는지, 이제는 알아요. 마지막 공연을 같이 끝내요."
+  },
+  {
+    "ev": "cue_sheet"
+  }
+],
+  F_leo_again:[
+  {
+    "s": "leo",
+    "e": "smile",
+    "t": "사람을 살리는 공연. 그 약속 지킬게."
+  }
+],
+  F_sian:[
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "통로를 확인했다. 녹음실 안에서 장막 뒤로 나올 수 있다. 네 기억과 일치해."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "예전 같으면 용의자를 잡았겠지. 오늘은 네가 대화할 시간을 벌겠다. 다만 위험해지면 내가 줄을 확보한다."
+  }
+],
+  F_sian_again:[
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "기록은 남겨 둔다. 아무도 다시 사라지지 않게."
+  }
+],
+  F_arin:[
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "하진 씨와 신호를 정했어요. 두 번이면 동의, 한 번이면 멈춰 달라는 뜻."
+  },
+  {
+    "p": "seongche"
+  },
+  {
+    "n": "손가락이 두 번 움직였다. 자기 몸으로 돌아가고 싶다는 하진의 대답이다."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "이제 신을 꾸미는 게 아니에요. 돌아올 두 사람을 돌보는 일이에요."
+  }
+],
+  F_arin_again:[
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "누구도 희생시키지 않는 방법부터 찾아요. 약속했죠."
+  }
+],
+  F_doc:[
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "출구 열어 놨다. 4만 2천 명, 오늘은 돈 낸 숫자가 아니라 집에 돌려보낼 사람 수다."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "장부도 챙겼어. 거짓말은 같이 했으니, 사과도 같이 한다."
+  }
+],
+  F_doc_again:[
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "네 할 일 해. 관객은 내가 지킨다."
+  }
+],
+  F_rope:[
+  {
+    "n": "후광 장치의 고정 핀이 빠져 있다. 대신 철사가 녹음실 쪽으로 이어진다. 팽팽한 줄을 지금 끊으면 장치가 바로 떨어질 수 있다."
+  },
+  {
+    "s": "hajin",
+    "t": "레오에게 위치를 알려야 해. 은결이 힘을 풀고, 시안이 줄을 잡은 뒤, 보조 걸쇠를 잠가야 해."
+  },
+  {
+    "ev": "rigged"
+  }
+],
+  F_mirror:[
+  {
+    "n": "하진의 얼굴 너머로 은우의 얼굴이 겹친다. 오늘은 둘 다 자기 얼굴로 아침을 맞게 하고 싶다."
+  }
+],
+  F_studio_locked:[
+  {
+    "n": "문 안에서 은결이 같은 주문을 되뇐다. 「이번에는, 이번에는.」"
+  },
+  {
+    "s": "hajin",
+    "t": "혼자서는 문을 열어 주지 않을 거야. 무대에서 모두가 보는 앞에서, 숨기지 않고 말하자."
+  }
+],
+  F_ceremony:[
+  {
+    "bg": "chapel"
+  },
+  {
+    "p": null
+  },
+  {
+    "n": "정오. 휘광제가 시작된다. 레오는 권양기 옆에, 시안은 통로 끝에, 아린은 성체 곁에, 도철은 출구 앞에 섰다. 모두 스스로 선택한 자리다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "neutral",
+    "t": "「나의 이름을 불러라. 그리하면 나는 너희에게 돌아가리라.」"
+  },
+  {
+    "p": null
+  },
+  {
+    "n": "호명 기도가 건물을 흔든다. 일흔. 여든. 아흔."
+  },
+  {
+    "s": "hajin",
+    "t": "레오 씨, 지금이에요."
+  },
+  {
+    "n": "방송이 끊긴다. 백여덟 번째까지 남은 시간을 대화로 바꾸어야 한다."
+  },
+  {
+    "s": "hajin",
+    "t": "여러분, 기도를 멈춰 주세요. 우리는 삼 년 동안 진실을 숨겼습니다. 오늘은 누구의 몸도 빼앗지 않겠습니다."
+  },
+  {
+    "c": [
+      {
+        "t": "은결을 불러, 모두 앞에서 진실과 기억을 나눈다.",
+        "go": "F_right"
+      },
+      {
+        "t": "두려움에 아무 말도 하지 못한다.",
+        "go": "F_w_none"
+      }
+    ]
+  }
+],
+  F_w_none:[
+  {
+    "n": "동료들의 눈을 보지 못했다. 침묵이 길어지고, 녹음실의 예비 방송이 켜졌다."
+  },
+  {
+    "go": "F_bad"
+  }
+],
+  F_right:[
+  {
+    "s": "hajin",
+    "t": "은결 씨. 숨지 않아도 돼요. 당신이 무엇을 되찾고 싶었는지 이야기해 주세요."
+  },
+  {
+    "s": "eungyeol",
+    "e": "shocked",
+    "t": "무대 위에 가만히 있으라고 했잖아요. 다들…… 언제부터 알고 있었어요?"
+  },
+  {
+    "s": "hajin",
+    "t": "각자 알고 있던 조각을 이제 함께 맞췄어요. 당신만 탓하려고 모인 게 아니에요."
+  },
+  {
+    "s": "eungyeol",
+    "e": "angry",
+    "t": "또 나만 멈추라고요? 오빠는 아직 돌아오지 않았는데? 당신들이 뭘 안다고!"
+  },
+  {
+    "c": [
+      {
+        "t": "큐시트와 당김줄을 보여 주고, 사고 대신 함께 돌아갈 방법을 찾자고 한다.",
+        "go": "F_t_ok"
+      },
+      {
+        "t": "네 잘못이니 변명하지 말라고 몰아붙인다.",
+        "go": "F_eun_retry"
+      }
+    ]
+  }
+],
+  F_eun_retry:[
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "……역시 아무도 내 말을 듣지 않네요. 또 혼자 해야 하네요."
+  },
+  {
+    "s": "hajin",
+    "t": "아니요. 미안해요. 당신의 말을 끝까지 듣고 싶어요."
+  },
+  {
+    "c": [
+      {
+        "t": "증거를 비난이 아니라 사고를 막을 방법으로 설명한다.",
+        "go": "F_t_ok"
+      }
+    ]
+  }
+],
+  F_t_ok:[
+  {
+    "s": "hajin",
+    "t": "108번째에 낙하하도록 적힌 큐시트와 녹음실로 이어진 철사예요. 당신이 시도하려는 의식은 이 몸을 죽이고 시작해요."
+  },
+  {
+    "s": "eungyeol",
+    "e": "neutral",
+    "t": "교주의 영혼을 내 몸으로 데려오면, 내가 그 힘을 쓸 수 있어요. 그 힘으로 오빠를 찾을 수 있다고요."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "삼 년 전에도 그래서 이름을 바꿨어요. 그런데 기억만 조금 들어왔어요. 오빠는 돌아오지 않았어요."
+  },
+  {
+    "s": "hajin",
+    "t": "교주는 삼 년 전 그 의식에서 사라졌어요. 그전까지는 정말 몸을 바꾸며 살아 있었어요. 10년 전부터 없었던 게 아니에요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "은결. 네 테이프, 원본 의식문, 아린의 신체 기록을 대조했다. 지금 반복하려는 건 교주의 귀환이 아니라 그날의 파괴다."
+  },
+  {
+    "s": "hajin",
+    "t": "흩어진 교주의 기억 일부는 당신에게 갔어요. 나머지 기억은 풀려난 은우와 함께 이 몸에 남았고요. 은우의 몸 안에는 하진이 있어요."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "하진 씨가 손가락으로 대답했어요. 살아 있어요. 몸을 돌려 달라고요."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "우리도 거짓말했다. 그 기도를 모은 건 우리 모두야. 책임은 같이 질 테니, 또 누굴 그릇으로 만들지는 말자."
+  },
+  {
+    "s": "eungyeol",
+    "e": "shocked",
+    "t": "……은우? 그 이름을 당신이 왜…… 아니, 교주도 오빠 이름은 알아요. 기억만 훔쳐서 그런 말을 할 수도 있어요."
+  },
+  {
+    "n": "옳은 설명만으로는 닿을 수 없는 곳이 있다. 은결이 기다린 것은 증명이 아니라, 자신을 불러 주던 목소리였다."
+  },
+  {
+    "c": [
+      {
+        "t": "자장가를 끝까지 부른다. 「……잘 자, 결아.」",
+        "go": "F_recognize",
+        "needFlag": "finalLullaby"
+      },
+      {
+        "t": "지금은 나를 믿지 않아도 돼요. 먼저 하진과 당신을 살리게 해 주세요.",
+        "go": "F_no_song"
+      }
+    ]
+  }
+],
+  F_recognize:[
+  {
+    "s": "hajin",
+    "t": "「별이 잠들면 등불을 끄자. 바람이 오면 문을 닫자.」"
+  },
+  {
+    "s": "eungyeol",
+    "e": "shocked",
+    "t": "그 노래…… 내가 불렀던 거잖아요. 그것만으로는……"
+  },
+  {
+    "s": "hajin",
+    "t": "「네가 울면 내가 깨어 있을게. 아침이 와도 여기 있을게.」"
+  },
+  {
+    "n": "은결이 끝내 부르지 않았던 마지막 소절을, 어릴 적 잠든 등을 토닥이던 박자로 불렀다."
+  },
+  {
+    "s": "hajin",
+    "t": "「……잘 자, 결아.」"
+  },
+  {
+    "s": "eungyeol",
+    "e": "shocked",
+    "t": "오빠? 진짜 오빠야?"
+  },
+  {
+    "s": "hajin",
+    "t": "응. 결아. 나야."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "거..거짓말"
+  },
+  {
+    "s": "hajin",
+    "t": "천둥이 치면 창문을 무서워했지. 내가 문을 닫아도 별은 안 사라진다고 했어. 그래서 우리 노래에 그 가사를 넣었잖아."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "난.. 난 그것도 모르고.. 다시 의식을 치뤄보려고.."
+  },
+  {
+    "n": "은결의 손에서 의식문이 미끄러졌다. 시안이 받았다. 철사를 쥔 다른 손은 여전히 떨리고 있었다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "미안해. 오빠인 줄도 모르고…… 이 몸을 부수면 돌아올 줄 알았어. 한 번만 제대로 하면, 만날 수 있을 줄 알았어."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "보고 싶었어. 정말, 너무 보고 싶었어."
+  },
+  {
+    "s": "hajin",
+    "t": "나도 보고 싶었어. 늦어서 미안해. 이제는 찾으려고 누구를 다치게 하지 않아도 돼."
+  },
+  {
+    "n": "기억이 돌아왔다. 2016년, 교주는 은우의 몸을 차지했다. 은우는 소멸하지 않고 그 안에서 억눌려 있었다."
+  },
+  {
+    "n": "2023년, 교주가 하진에게 옮겨가려던 의식을 은결이 바꾸었다. 찢어진 의식 속에서 교주의 영혼만 소멸했다. 풀려난 은우는 하진의 몸으로, 하진은 은우의 몸으로 밀려났다."
+  },
+  {
+    "n": "교주의 기억 때문에 자신을 교주라고 믿었던 나는 은우였다. 천휘교가 없는 교주를 섬긴 시간은 지난 삼 년이었다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "neutral",
+    "t": "이번엔 내가 멈출게. 하지만 이 줄, 놓으면 장치가……"
+  },
+  {
+    "s": "hajin",
+    "t": "혼자 놓지 마. 같이 하자. 여기 모두가 있어."
+  },
+  {
+    "set": "eunPersuaded"
+  },
+  {
+    "set": "recognizedEunwoo"
+  },
+  {
+    "go": "F_joint"
+  }
+],
+  F_no_song:[
+  {
+    "s": "hajin",
+    "t": "당신이 기다린 사람이란 걸 지금 증명할 수는 없어요. 하지만 이 안의 사람과 저 안의 사람이 돌아갈 자리는 지킬 수 있어요."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "……믿었다고는 못 하겠어요. 하지만 더 망가뜨리면 돌아올 곳도 없어지겠죠."
+  },
+  {
+    "s": "eungyeol",
+    "e": "neutral",
+    "t": "방법을 말해 줘요. 이번에는 나도 듣고 있을게요."
+  },
+  {
+    "set": "eunPersuaded"
+  },
+  {
+    "go": "F_joint"
+  }
+],
+  F_joint:[
+  {
+    "s": "hajin",
+    "t": "시안 씨, 철사의 장력을 받아 주세요. 은결은 제 신호에 맞춰 손을 펴고요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "확보. 은결, 천천히. 네 손에서 내 손으로."
+  },
+  {
+    "s": "eungyeol",
+    "e": "neutral",
+    "t": "하나…… 둘. 풀었어요."
+  },
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "보조 걸쇠 잠근다. 지금!"
+  },
+  {
+    "n": "금속이 울렸다. 후광 장치가 한 번 흔들리고, 레오가 준비한 두 번째 걸쇠에 고정되었다."
+  },
+  {
+    "s": "docheol",
+    "e": "angry",
+    "t": "출구 열려 있다! 서로 밀지 마! 오늘 집에 못 가는 사람은 없어야 해!"
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "하진 씨, 들려요? 이제 안전해요. 두 번이면 준비된 거예요."
+  },
+  {
+    "n": "손가락이 두 번 움직였다. 은결은 예비 방송의 스위치까지 껐다. 백여덟 번째 호명은 끝내 울리지 않았다."
+  },
+  {
+    "set": "accidentPrevented"
+  },
+  {
+    "s": "hajin",
+    "t": "기적의 뒤에는 장치가 있었습니다. 교주의 목소리는 은결이 녹음했습니다. 우리는 쓰러진 몸을 장막 뒤에 세우고 삼 년을 속였습니다."
+  },
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "내가 만든 장치였어요. 책임을 피하지 않겠습니다."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "숨을 쉬는 사람을 신의 장식처럼 보이게 했어요. 더는 그렇게 하지 않을게요."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "기록은 공개한다. 지워진 이름도 복구하겠다."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "장부도 공개한다. 돈도, 믿음에 진 빚도, 같이 갚는다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "의식을 바꾼 건 저예요. 그리고 오늘 다시 하려 했어요. 미안합니다. 이제 누구의 몸도 빼앗지 않겠습니다."
+  },
+  {
+    "if": "recognizedEunwoo",
+    "then": "F_hidden",
+    "else": "F_happy"
+  }
+],
+  F_hidden:[
+  {
+    "bg": "ritual"
+  },
+  {
+    "n": "그날 밤, 의식실. 이번에는 누군가를 새 그릇으로 부르는 의식이 아니었다. 서로의 자리를 돌려주는 약속이었다."
+  },
+  {
+    "s": "sian",
+    "e": "neutral",
+    "t": "원본과 수정본 대조 완료. 다른 이름은 없다. 시작 전에 두 사람의 의사를 다시 확인해."
+  },
+  {
+    "p": "seongche"
+  },
+  {
+    "n": "하진이 두 번 손가락을 움직였다. 나는 고개를 끄덕였다."
+  },
+  {
+    "note": "유하진 — 유하진의 몸으로.\n하은우 — 하은우의 몸으로.\n누구도 다른 사람의 그릇이 되지 않는다."
+  },
+  {
+    "s": "arin",
+    "e": "neutral",
+    "t": "은우 씨의 몸, 삼 년 동안 지켰어요. 그 안에 있던 하진 씨도요. 이제 두 사람 모두 돌아가요."
+  },
+  {
+    "s": "leo",
+    "e": "neutral",
+    "t": "불필요한 조명은 껐어. 오늘은 내가 만든 기적 없이도 충분해."
+  },
+  {
+    "s": "docheol",
+    "e": "neutral",
+    "t": "문 밖은 내가 보고 있을게. 끝나면 둘 다 걸어서 나와. 알았냐."
+  },
+  {
+    "s": "eungyeol",
+    "e": "neutral",
+    "t": "오빠. 무서우면 멈춰도 돼. 이번에는 내가 기다릴게."
+  },
+  {
+    "s": "hajin",
+    "t": "괜찮아. 하진도 오래 기다렸잖아. 이번에는 돌아가자."
+  },
+  {
+    "n": "은결이 자장가의 박자로 이름을 불렀다. 빼앗을 이름이 아니라, 돌아갈 이름을."
+  },
+  {
+    "bg": "chapel_lit"
+  },
+  {
+    "n": "두 개의 영혼이 서로의 손을 놓았다. 하진은 하진의 몸으로, 은우는 은우의 몸으로."
+  },
+  {
+    "bg": "black"
+  },
+  {
+    "n": "눈을 뜨자 오래 움직이지 못한 다리가 아팠다. 내 몸의 통증이었다. 옆자리에서는 하진이 자기 손을 펴 보며 울고 있었다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "오빠…… 이번엔 정말 돌아왔네."
+  },
+  {
+    "s": "hajin",
+    "t": "응. 다녀왔어, 결아."
+  },
+  {
+    "bg": "chapel"
+  },
+  {
+    "n": "교단은 문을 닫았다. 도철은 장부를 공개했고, 시안은 사라진 사람들의 이름을 되찾았다. 아린은 두 사람의 재활을 도우며 자기 옷을 만들었다."
+  },
+  {
+    "n": "레오가 거리 공연에 모두를 초대했다. 이번 초대에는 비워 두어야 할 자리가 없었다."
+  },
+  {
+    "n": "어느 아침, 텅 빈 성당에 남매가 나란히 앉았다. 은결이 내 소매를 잡았다."
+  },
+  {
+    "s": "eungyeol",
+    "e": "sad",
+    "t": "미안하다는 말만 하다가 또 하루를 보내고 싶지는 않아. 그래도…… 미안해. 그리고 와 줘서 고마워."
+  },
+  {
+    "s": "hajin",
+    "t": "앞으로는 보고 싶으면 찾아와. 의식 같은 건 하지 말고."
+  },
+  {
+    "s": "eungyeol",
+    "e": "smile",
+    "t": "……응. 밥 먹으러 오라고 할게. 매일."
+  },
+  {
+    "n": "문이 열렸다. 레오가 종이학을 날렸고 도철은 빵을 들고 들어왔다. 아린은 새 옷을, 시안은 빈 수첩을 들고 왔다. 마지막으로 하진이 자기 두 발로 걸어 들어왔다."
+  },
+  {
+    "n": "나는 노래를 시작했다. 누구도 그릇이 아니고, 누구도 사라지지 않은 아침이었다."
+  },
+  {
+    "ending": "오빠의 자장가",
+    "kind": "히든 해피엔딩"
+  },
+  {
+    "finish": "hidden"
+  }
+],
+  F_bad:[
+    {p:null},
+    N('예배당이 혼란에 빠진 사이, 꺼졌던 스피커가 다시 살아났다. 녹음실에서 따로 이어 둔 선이었다.'),
+    L('eungyeol','smile','「나의 이름을 불러라.」'),
+    {p:null},
+    N('누군가 이어서 이름을 불렀다. 하나, 둘. 그리고 4만 명이 다시.'),
+    N('백여섯. 백일곱.'),
+    N('백여덟.'),
+    N('머리 위에서, 무언가 끊어지는 소리가 났다.'),
+    {bg:'black'},
+    N('……'),
+    N('나는 쓰러진 몸에서 떠올라, 가장 가까운 그릇을 향해 끌려갔다.\n장막 뒤, 의식문을 든 사람에게로.'),
+    {bg:'chapel_lit'},
+    N('신도들은 기적이라며 환호했다. 장막이 걷히고, 새 교주가 모습을 드러냈다.'),
+    {p:'eungyeol', e:'smile'},
+    N('하은결의 얼굴로, 하은결이 아닌 누군가가 웃고 있었다.'),
+    {p:null},
+    {ending:'새로운 교주', kind:'배드엔딩'},
+    {finish:'bad'}
+  ],
+  F_happy:[
+    H('은결 씨. 저는 제가 누군지 아직 몰라요. 교주일지도 몰라요. 하지만 하나는 알아요.'),
+    H('이 몸은 하진 씨 거예요. 돌려줘야 해요.'),
+    L('eungyeol','shocked','……돌려준다고요? 교주가?'),
+    {p:null},
+    N('나는 4만 명을 향해 돌아섰다.'),
+    H('여러분. 교주님은 3년 동안 여기 계시지 않았습니다. 기적은 마술이었고, 목소리는 대역이었습니다. 우리 여섯이 거짓말을 했습니다.'),
+    N('침묵. 그리고 누군가의 울음. 누군가의 고함. 도철이 단상 앞으로 나와 사람들을 막아섰다.'),
+    L('docheol','angry','다들 진정해! 헌금은 내가 한 푼도 빠짐없이 돌려준다! 장부 여기 있어!'),
+    {p:null},
+    {bg:'ritual'},
+    N('그날 밤. 의식실. 다섯 명이 의식진 둘레에 섰다.'),
+    N('아린이 성체를 의식진 가운데 눕혔고, 레오가 촛불을 켰다. 시안이 문을 지켰고, 도철은 계산기 대신 의식문을 들었다.'),
+    N('은결이 의식문을 고쳐 썼다. 이번엔 이름을 바꾸지 않았다. 원래 주인에게, 원래 몸을.'),
+    L('eungyeol','sad','……정말 괜찮아요? 몸을 돌려주면, 당신은 갈 곳이 없어요.'),
+    H('괜찮아요. 처음으로, 내가 고르는 거니까.'),
+    {p:null},
+    N('은결이 주문을 읊기 시작했다. 교주의 목소리가 아닌, 자기 목소리로.'),
+    {bg:'chapel_lit'},
+    N('빛이 차오른다. 몸이 가벼워진다. 하진의 몸에서 내가 천천히 빠져나간다.'),
+    N('마지막으로 본 건, 눈을 뜨는 하진의 얼굴과, 울고 있는 은결의 얼굴이었다.'),
+    {bg:'black'},
+    N('……그리고, 빛이 꺼졌다.'),
+    {bg:'chapel'},
+    N('천휘교는 해체되었다. 도철은 장부를 들고 1년 동안 4만 명에게 헌금을 돌려주었다.'),
+    N('레오는 거리에서 마술을 한다. 관객석 맨 앞자리 하나는 늘 비워 둔다고 한다.'),
+    N('시안은 의뢰인에게 마지막 보고를 했다. 의뢰인은 이미 모든 걸 알고 있었다.'),
+    N('아린은 의상실을 정리하고, 처음으로 자기가 입을 옷을 지었다.'),
+    N('하진은 깨어났다. 사흘의 기억은 없지만, 가끔 거울 앞에서 왼손을 오른손 위에 겹치는 버릇이 생겼다고 한다.'),
+    N('그리고 은결은, 오빠의 몸이 잠든 곳에 매주 꽃을 둔다.'),
+    {ending:'빛을 끄는 날', kind:'해피엔딩'},
+    {finish:'happy'}
+  ],
+
+  /* --- 동행 선택 직후 --- */
+  teaser_leo:[{bg:'stage'},
+    N('잠들지 못하고 무대 장치실로 향했다. 꺼 둔 장치가 켜져 있었다는 레오의 말이 계속 마음에 걸렸다.'),
+    N('장치실에는 아직 불이 켜져 있었다.'),
+    L('leo','smile','이 밤중에 웬일이야, 대언자님. ……아, 그 눈빛. 날 의심하는구나?'),
+    L('leo','smile','좋아. 마술사는 원래 의심받는 게 직업이야. 대신 공정하게 하자고. 나도 그 빛의 정체가 궁금하거든.'),
+    L('leo','neutral','……사실 3년 전에도 본 적이 있어. 내가 만든 적 없는 빛을. 내일 아침에 다시 와.'),
+    {p:null},{go:'leo_r1'}],
+  teaser_sian:[{bg:'watch'},
+    N('잠들지 못하고 감시실로 향했다. 꺼진 카메라의 4분. 그걸 가장 잘 아는 사람은 시안이다.'),
+    L('sian','suspicious','……이 시간에 무슨 일이지. 날 의심하러 왔나.'),
+    L('sian','neutral','좋다. 의심은 서로 하자. 공평하게.'),
+    L('sian','neutral','내일 아침에 다시 와라. 보여줄 게 있다. 백 년 치 사진이야.'),
+    {p:null},{go:'sian_r1'}],
+  teaser_arin:[{bg:'dressing'},
+    N('잠들지 못하고 의상실로 향했다. 아린이 덮어 버린 치수 노트가 자꾸 떠올랐다.'),
+    L('arin','shocked','하진 씨? 이 밤에…… 아, 그 노트 때문이죠.'),
+    L('arin','sad','……숨긴 건 맞아요. 하지만 하나만 약속해요.'),
+    L('arin','neutral','내일 보게 될 걸 아무한테도 말하지 않겠다고. 성체에 대한 거예요.'),
+    {p:null},{go:'arin_r1'}],
+  teaser_docheol:[{bg:'accounts'},
+    N('잠들지 못하고 회계실로 향했다. 열쇠는 밤새 서랍에 있었다던 도철의 말은 거짓이었다.'),
+    L('docheol','angry','뭐야, 이 밤에. ……열쇠 때문에 왔구나. 날 범인으로 찍었냐?'),
+    L('docheol','suspicious','좋아, 의심해. 대신 내일 회계실로 와. 장부를 보여주지. 거기 이상한 숫자가 있다. 돈이 아니라 사람 숫자야.'),
+    {p:null},{go:'doc_r1'}],
+  teaser_eungyeol:[{bg:'studio'},
+    N('잠들지 못하고 녹음실로 향했다. 내가 설교를 이었을 때 하얗게 질리던 은결의 손이 마음에 걸렸다.'),
+    L('eungyeol','smile','하진 씨, 이 늦은 시간에. ……무슨 얼굴이에요, 그거. 저를 의심하는 사람 얼굴이네.'),
+    L('eungyeol','neutral','괜찮아요. 내일부터 목소리 연습 같이 해요. 그러다 보면 제가 뭘 숨기는지 알게 될지도 모르잖아요.'),
+    L('eungyeol','smile','……하진 씨한테 들려주고 싶은 노래도 있어요.'),
+    {p:null},{go:'eun_r1'}]
+};
+
+
+/* ===================== 스킵 요약 (장면별, 각 200자 이내) ===================== */
+const SUM = {
+  prologue:'의식실 바닥에서 눈을 떴다. 손에는 의식실 열쇠가 쥐어져 있었고, 달려온 측근 다섯 명은 나를 하진이라 불렀다. 나는 그들 중 누구도 기억하지 못했다.',
+  pro_a:'기억이 없다고 털어놓자 다들 놀랐고, 레오가 측근들을 소개해 주기로 했다.',
+  pro_b:'괜찮은 척했지만 시안에게 바로 들켰다. 레오가 측근들을 소개해 주기로 했다.',
+  pro_intro:'마술사 레오, 성우 은결, 스타일리스트 아린, 채권 추심원 도철, 탐정 시안. 장막 뒤 인물은 저녁 회의 때 알려주겠다고 했고, 시안은 열쇠를 내놓으라고 했다.',
+  pro_key_give:'열쇠를 시안에게 건넸다.',
+  pro_key_hide:'열쇠를 잃어버렸다고 둘러댔지만, 시안은 눈치챈 듯했다.',
+  pro_end:'하진의 방으로 돌아왔다. 이제 본부를 돌아다니며 조사하고 측근들과 이야기할 수 있다.',
+  h_mirror:'하진의 방 거울에 아주 잠깐, 검은 머리에 회색 눈을 한 낯선 사람이 비쳤다.',
+  h_notebook:'하진의 수첩 마지막 장에 "오늘 밤, 의식실. 확인해야 한다."라고 적혀 있었다.',
+  leo_p1:'레오는 휘광제 후광 장치를 보여주며, 자기가 꺼 둔 장치 하나가 어젯밤 켜져 있었다고 말했다.',
+  eungyeol_p1:'은결이 교주의 목소리로 설교 한 구절을 들려줬다. 156주째 교주의 목소리를 대신하고 있다고 한다.',
+  eun_echo:'나도 모르게 설교의 다음 문장을 말하자, 은결은 웃었지만 마이크를 쥔 손이 하얗게 질렸다.',
+  eun_quiet:'은결은 3년 동안 이 목소리가 신도들을 지켜 왔다고 말했다.',
+  eun_end:'휘광제 때 은결이 장막 뒤에서 목소리를 내고, 하진은 입 모양만 맞추기로 했다.',
+  arin_p1:'아린이 머리를 빗겨 주다가, 하진의 가르마가 교주처럼 왼쪽으로 넘어간다는 걸 알아챘다.',
+  docheol_p1:'도철은 신도 4만 2천 명의 믿음 위에 교단이 서 있다고 했다. 어제 예배 인원이 역대 최고였고, 그날 밤 하진이 쓰러졌다.',
+  sian_p1:'시안은 하진이 커피를 어떻게 마시는지 물으며 나를 시험했다.',
+  sian_two:'대답이 틀려, 시안은 기억상실이 사실이라고 판단했다.',
+  sian_none:'대답이 맞았다. 시안은 기억이 없는데 어떻게 알았냐며 흥미로워했다.',
+  sian_end:'어젯밤 11시 40분, 의식실 앞 카메라가 4분 동안 꺼져 있었다고 한다.',
+  p1_done:'저녁 회의. 교주는 3년 전 의식 중 쓰러져 깨어나지 않았고, 여섯 명이 그 사실을 숨긴 채 교단을 이끌어 왔다. 장막 뒤의 몸은 성체라 불린다.',
+  meet_cruel:'잔인하다고 말하자 아린은 고개를 숙였고, 도철은 4만 명을 지키기 위해서였다고 맞받았다.',
+  meet_ok:'레오는 이해가 빠르다며 웃었고, 아린은 칭찬받을 일은 아니라고 했다.',
+  meet_2:'휘광제까지 사흘. 도철은 열쇠가 밤새 자기 서랍에 있었으니 아무도 의식실에 들어갈 수 없었다고 주장했다.',
+  tut_s_given:'아침에 쥐고 있던 열쇠로 도철의 말을 반박했다. 시안이 사실을 확인해 줬다.',
+  tut_s_hidden:'숨겨 두었던 열쇠를 꺼내 도철의 말을 반박했다.',
+  tut_after:'도철은 열쇠를 확인하지 않았다고 인정했다. 그때 3년간 움직이지 않던 성체의 손가락이 움직였고, 모두가 동요했다.',
+  night:'그날 밤, 정원의 마른 분수에서 누군가 묻어 둔 교주의 일기장을 발견했다. 의식 전날 밤의 마지막 글: "측근 여섯 중에 이단자가 있다. 누군가 나를 배반하려 한다." 가장 의심스러운 사람부터 파고들기로 했다.',
+  teaser_leo:'레오를 의심해 장치실을 찾아갔다. 레오는 공정하게 하자며, 3년 전에도 자기가 만든 적 없는 빛을 봤다고 털어놓았다.',
+  teaser_sian:'시안을 의심해 감시실을 찾아갔다. 시안은 의심은 서로 하자며, 백 년 치 사진을 보여주겠다고 했다.',
+  teaser_arin:'아린을 의심해 의상실을 찾아갔다. 아린은 노트를 숨긴 걸 인정하고, 성체의 비밀을 지켜 달라고 했다.',
+  teaser_docheol:'도철을 의심해 회계실을 찾아갔다. 도철은 장부에 이상한 사람 숫자가 있다고 했다.',
+  teaser_eungyeol:'은결을 의심해 녹음실을 찾아갔다. 은결은 함께 목소리 연습을 하자며, 들려주고 싶은 노래가 있다고 했다.',
+  leo_r1:'D-2 아침. 레오는 무대에서 살아남는 법을 가르쳐 주겠다며, 어젯밤의 빛을 함께 조사하자고 했다.',
+  leo_r1_a:'레오는 3년 전에도 빛을 봤다고 인정했지만, 증거부터 모으자고 했다.',
+  leo_r1_b:'레오는 차라리 자기 장치였으면 좋겠다며 원인을 확인하자고 했다.',
+  leo_r1_c:'장치실, 감시실, 회계실을 돌며 어젯밤의 빛을 조사하기로 했다.',
+  L_halo:'어젯밤 빛났다는 후광 장치의 플러그는 뽑혀 있었다. 전기 없이 빛났다는 뜻이다.',
+  L_log:'레오의 작업 일지 3년 전 페이지에, 덧칠로 지운 "장치 가동 없음. 그런데, 빛났다."가 남아 있었다.',
+  L1_sian:'장치실 영상에는 아무도 없는데 후광 장치가 4분간 빛나는 모습이 찍혀 있었다. 의식실 앞 카메라가 꺼진 시간과 같다.',
+  L1_doc:'도철의 장부에 따르면 어젯밤 장치실의 전력 사용량은 0이었다.',
+  L1_arin:'아린은 3년 전 그날 밤 레오의 얼굴이 하얗게 질려 있었고, 그 뒤로 레오가 기적을 늘렸다고 말했다.',
+  L1_eun:'은결은 빛 이야기를 꺼내자, 질문이 끝나기도 전에 장치 오작동이라고 답했다.',
+  L_rehearsal:'단서를 모은 뒤, 저녁 대예배당에서 대언자 리허설을 시작했다.',
+  reh_a:'손이 저절로 교주의 버릇대로 움직였다.',
+  reh_b:'몸이 기억하는 대로, 한 번도 해 본 적 없는 손짓을 했다.',
+  reh_c:'레오는 그게 교주의 버릇이라고 했다. 손을 들어 올리자 촛불 수백 개가 저절로 켜졌다. 레오는 아무것도 켜지 않았고, 도망치듯 나갔다.',
+  L_night:'그날 밤, 거울 속 낯선 얼굴이 무대에서와 똑같은 손짓을 하고 있었다.',
+  L_d1:'D-1. 레오는 모든 빛이 장치 오작동이었다고 정리하자고 했다.',
+  L_trial1_ok:'뽑힌 플러그와 전력 사용량 0으로 레오의 오작동 주장을 반박했다.',
+  L_trial2_ok:'작업 일지로 반박하자 레오가 고백했다. 3년 전 의식실에서 빛이 쏟아졌고, 주문 속에 다른 사람 목소리가 섞여 있었다고.',
+  L_end_a:'레오는 내 정체를 알게 되면 가장 먼저 알려 달라고 했다.',
+  L_end_b:'레오는 기적이라는 말이 싫다고 했다가 곧 사과했다.',
+  sian_r1:'D-2 아침. 시안이 백 년 치 교주 사진 넷을 보여줬다. 얼굴은 다 다르지만 손을 모으는 버릇이 같고, 2016년 사진은 성체와 같은 얼굴이었다.',
+  sian_why:'시안은 4년 전 실종된 신도를 찾아 달라는 의뢰를 받고 교단에 들어왔다고 했다.',
+  sian_doubt:'시안은 수상하니까 오히려 옆에 두는 거라고 했다.',
+  sian_r1_c:'녹음실의 옛 테이프, 의상실의 예복, 회계실의 옛 문서를 조사하기로 했다.',
+  S1_eun:'은결은 옛 테이프의 위치를 알려주며, 목소리는 달라도 말투와 숨 쉬는 자리가 같다고 했다. 너무 깊이 파면 다친다는 말도 덧붙였다.',
+  S_tape:'1958년 설교 테이프 속 늙은 남자의 목소리가, 지금의 설교와 한 글자도 다르지 않은 문장을 읊고 있었다.',
+  S_lining:'예복 안감에 같은 바느질로 이름 넷이 수놓여 있었다. 윤명수, 한기철, 서도윤, 설유. 그 아래 한 칸은 다음 교주의 자리라고 한다.',
+  S1_doc:'1925년 땅 문서의 서명과 3년 전 교주의 서명이 같은 필체였다.',
+  S1_leo:'레오는 시안이 처음 교단에 올 때 신분이 가짜였다고 알려줬다.',
+  S_evening:'저녁. 모은 단서를 정리한 뒤, 시안이 내 이름을 써 보라고 했다.',
+  S_pen_a:'이름을 쓰다가 손이 멋대로 낯선 획을 그었다.',
+  S_pen_b:'손에 힘을 빼자 손이 알아서 오래 써 온 사람의 획을 그었다.',
+  S_sign:'종이에 쓰인 건 \'설유\'라는 서명이었다. 백 년 전 땅 문서와 같은 필체. 시안은 내가 거짓말하는 게 아니라는 걸 알아봤다.',
+  S_client_ask:'시안은 4년 전 실종자를 찾는 의뢰로 교단에 들어왔다고 했다.',
+  S_client:'의뢰인은 전화로만 연락했고, 10년 전쯤 교단에서 연락이 끊긴 오빠를 찾고 있었다. 사진은 보내지 않았고, 목소리가 이상할 만큼 듣기 좋았다고 한다.',
+  S_dream:'꿈속에서 여러 시대의 교주로 불렸다. 마지막엔 쓰러진 젊은 남자를 내려다보며 "또, 새 몸이구나"라는 목소리를 들었다.',
+  S_d1:'D-1. 시안은 가장 지루한 설명부터 반박해 보라고 했다.',
+  S_t1_ok:'예복 안감의 이름으로 교주 세습설을 반박했다. 넷은 아무 관계 없는 남이었다.',
+  S_t2_ok:'배운 적 없는 서명을 썼다는 사실로 후계자 교육설을 반박했다. 시안은 하나의 영혼이 삼십 년마다 몸을 갈아타 왔다고 결론 내렸다.',
+  S_end_a:'시안은 가능성만으로는 체포하지 않는다고 했다.',
+  S_end_b:'진짜 하진의 행방을 묻자, 시안은 그런 질문을 하는 사람이 교주일 리 없다고 했다.',
+  S_end:'시안은 수갑을 다시 넣고 2016년 교주의 사진을 건넸다. "이번엔 다르게 끝내." 그리고 4년간 모은 기록을 불태웠다.',
+  arin_r1:'D-2 새벽. 아린이 자기만의 열쇠로 의식실을 열어 성체를 보여줬다. 그저께부터 성체가 밤마다 눈을 뜨는데, 교주와 달리 겁먹은 사람 눈이라고 했다.',
+  arin_r1_a:'아린은 3년 동안 매일 본 얼굴이라 표정이 달라지면 안다고 했다.',
+  arin_r1_b:'아린은 치수 노트를 혼자 갖고 있기가 무섭다며 의상실 책상에 있다고 알려줬다.',
+  arin_r1_c:'성체와 의식실, 치수 노트를 살피고, 시안에게 밤 영상을 부탁하기로 했다.',
+  A_body:'성체의 뺨에 마른 눈물 자국이 있었다. 교주는 한 번도 운 적이 없다고 한다.',
+  A_circle:'바닥 의식진의 여섯 원에 측근의 이름이 새겨져 있었고, 유하진의 원만 검게 그을려 있었다.',
+  A_notes:'치수 노트의 마지막 칸은 \'그릇 적합도\'였다. 유하진 ◎, 하은결 ○. 그 치수로 만든 옷은 한 벌도 없었다.',
+  A1_sian:'새벽 3시, 성체가 팔걸이를 두 번씩 두드리는 영상이 있었다. 시안은 그게 하진의 버릇이라고 했다.',
+  A1_eun:'은결은 성체가 깨어나시면 안 된다고 말했다가, 아직 준비가 안 됐다는 뜻이라고 얼버무렸다.',
+  A1_leo:'레오는 의식실은 3년 전부터 공기가 달라서 장치를 하나도 달지 않았다고 했다.',
+  A1_doc:'아린은 3년 동안 성체 관리비를 한 푼도 청구하지 않고 전부 자기 돈으로 냈다고 한다.',
+  A_night:'새벽 3시, 성체가 눈을 떠 하진의 얼굴을 바라보며 입 모양으로 "내…… 몸……"이라고 말했다. 그리고 손가락을 두 번 두드리고 눈물을 흘렸다.',
+  A_d1:'D-1. 아린은 성체 안에 있는 건 깨어나는 중인 교주라고 스스로를 설득하려 했다.',
+  A_t1_ok:'두 번 두드리는 버릇은 하진의 것이라며 아린의 말을 반박했다.',
+  A_t2_ok:'의식진과 그릇 적합도 노트로 반박했다. 3년 전 의식은 하진의 몸으로 옮겨 가는 의식이었고, 지금 성체 안에 있는 건 하진이었다.',
+  A_end_a:'몸을 돌려줘야 한다고 하자, 아린은 교주라면 절대 하지 않을 말이라고 했다.',
+  A_end_b:'교주일지도 모른다고 하자, 아린은 당신 눈은 교주와 달라서 무섭지 않다고 했다.',
+  A_end:'아린은 성체의 분칠을 지우고 간이침대에 눕혔다. "그냥 사람이었네." 손을 잡자 성체가 두 번 두드려 대답했다.',
+  doc_r1:'D-2 아침. 도철이 3년치 예배 인원 장부를 보여줬다. 인원이 최고였던 1주년, 2주년, 3주년 전야 세 번 모두 그날 밤 의식실에 이변이 있었다.',
+  doc_r1_a:'도철은 의심받는 사람이 먼저 장부를 여는 게 제일 빠르다고 했다.',
+  doc_r1_b:'도철은 2주년 다음 날부터 숫자가 무서워졌다고 했다.',
+  doc_r1_c:'아린의 성체 간호 일지와 녹음실의 방송 기록을 모으기로 했다.',
+  D1_arin:'아린의 간호 일지: 1주년 밤 체온 39도, 2주년 밤 맥박 두 배, 3주년 전야 손가락 움직임. 그 외엔 3년 내내 아무 일도 없었다.',
+  D_chant:'방송 기록부에 따르면, 교주의 이름을 108번 부르는 호명 기도는 그 세 날에만 있었다. 원고 작성자는 \'원고 없음, 즉흥(하은결)\'.',
+  D1_eun:'은결은 호명 기도가 1주년부터 자기가 낸 아이디어라며 자랑스럽게 웃었다.',
+  D1_sian:'시안에 따르면 도철의 어머니는 전 재산을 헌금한 신도였고, 작년에 돌아가셨다.',
+  D1_leo:'레오는 도철이 신도들 이름을 외우고 예배마다 빈자리를 센다고 했다.',
+  D_box:'헌금함 옆에 "엄마, 여기 있어요?"라는 오래된 글씨가 있었다.',
+  D_evening:'저녁 예배에서 3천 명이 호명 기도를 하자 몸이 뜨거워지고 "더 불러라"라는 목소리가 들렸다. 쓰러진 하진의 몸에서 빛이 났다고 도철이 말했다.',
+  D_d1:'D-1. 도철은 전부 우연이라고 믿고 싶어 했다.',
+  D_t1_ok:'간호 일지로 세 번 모두 겹쳤다는 걸 보여 우연설을 반박했다.',
+  D_t2_ok:'방송 기록부로 호명 기도를 은결이 즉흥으로 넣었다는 걸 밝혔다. 신도들의 기도가 교주를 깨우는 땔감이었고, 누군가 일부러 불을 지폈다.',
+  D_mom_a:'도철은 시안을 탓하면서, 어머니가 전 재산을 바치고 신도석에서 돌아가셨다고 말했다.',
+  D_mom_b:'도철의 어머니는 전 재산을 바치고 작년에 신도석에서 기도하다 돌아가셨다.',
+  D_end:'도철은 휘광제가 끝나면 신도들에게 헌금을 돌려주기로 했다. "빚쟁이는 남의 믿음을 빌려 쓰는 사람이 아니거든."',
+  eun_r1:'D-2 아침. 은결과 입 모양 연습을 했다. 마지막에 은결이 원고에 없는 구절을 읊었는데, 처음 듣는데도 뒷문장이 떠올랐다.',
+  eun_r1_a:'은결은 공개되지 않은 경전 마지막 장 \'귀환장\'이라며, 교주에게 들은 걸 외웠을 뿐이라고 했다.',
+  eun_r1_b:'뒷문장을 떠올리며 입술이 움직였고, 은결이 그걸 눈치챈 듯했다.',
+  eun_r1_c:'은결이 스피커 점검을 하러 나가고, 녹음실에 혼자 남았다.',
+  E_panel:'방음재 뒤에 의식실로 이어지는 비밀 통로가 있었다. 그 안의 3년 전 연습 테이프에서, 은결은 그릇의 이름 자리에 자기 이름을 넣어 주문을 연습하고 있었다.',
+  E_drawer:'하진의 서랍 밑에 교주가 맡긴 의식문 사본이 숨겨져 있었다. "그릇의 이름은 유하진."',
+  E1_eun:'은결은 녹음실을 편하게 쓰라면서도, 벽의 방음재는 만지지 말라고 했다.',
+  E1_leo:'레오는 3년 전 의식 날 밤, 주문 속에 젊은 여자 목소리가 섞여 있었다고 증언했다.',
+  E1_doc:'3년간 교주 서명이 필요한 서류는 은결이 처리했고, 그 서명은 백 년 전 땅 문서와 같은 필체였다.',
+  E1_arin:'은결은 작년에 치수 노트 속 자기 칸을 보며 "아깝다"고 웃었다고 한다.',
+  E1_sian:'의식 날 밤 은결은 녹음실에 들어간 뒤 한 번도 나오지 않았다. 완벽한 알리바이였다.',
+  E_evening:'밤. 은결은 휘광제 날 호명 기도가 끝나면 무대 위에 가만히 서 있기만 하라고 약속을 받으려 했다.',
+  E_eve_a:'은결은 그게 제일 안전하다고 했다.',
+  E_eve_b:'약속하자 은결은 착하다며 웃었다.',
+  E_d1:'D-1. 테이프와 의식문 사본을 은결 앞에 내려놓았다.',
+  E_t1_ok:'의식문 사본으로, 은결이 그릇의 이름을 자기 이름으로 바꿔 연습했다는 걸 밝혔다.',
+  E_t2_ok:'비밀 통로와 레오의 증언으로 알리바이를 무너뜨렸다. 은결은 의식이 찢어지며 기억이 반은 하진에게, 반은 자기에게 흘렀다고 인정했다.',
+  E_end:'그날 밤, 은결이 불 꺼진 녹음실에서 혼자 자장가를 불렀다. 처음 듣는 노래인데 다음 소절이 떠올랐다.',
+  E_sing:'다음 소절을 따라 부르자 은결이 얼어붙었다. "……역시, 아직 다 가져오지 못했구나." 은결은 그 말만 남기고 사라졌다.',
+  E_listen:'듣기만 했다. 은결은 이 다음을 아는 사람은 이제 세상에 없다고 중얼거렸다.',
+  L_end:'레오는 휘광제를 마지막 공연으로 교단을 떠나기로 했다. 그리고 분수의 종이학을 마술처럼 건네주었다.'
+};
+
+/* ===================== 탐색 단계 ===================== */
+const PHASES = {
+  p1:{
+    goal:'측근 다섯 명과 이야기하고, 하진의 방 거울을 살펴보자.',
+    start:'hajin_room',
+    chars:{stage:['leo'], studio:['eungyeol'], dressing:['arin'], accounts:['docheol'], watch:['sian']},
+    talk:{leo:['leo_p1','leo_again'], eungyeol:['eungyeol_p1','eungyeol_again'], arin:['arin_p1','arin_again'], docheol:['docheol_p1','docheol_again'], sian:['sian_p1','sian_again']},
+    locked:{ritual:'locked_ritual'},
+    hots:{
+      hajin_room:[
+        {id:'mirror', label:'거울', x:1180,y:170,w:180,h:450, scene:'h_mirror'},
+        {id:'notebook', label:'책상 위 수첩', x:530,y:460,w:220,h:100, scene:'h_notebook'},
+        {id:'bed', label:'침대', x:120,y:520,w:340,h:180, scene:'h_bed'},
+        {id:'window', label:'창문', x:640,y:140,w:260,h:220, scene:'h_window'}
+      ],
+      corridor:[
+        {id:'board', label:'게시판', x:180,y:300,w:220,h:260, scene:'c_board'},
+        {id:'fountain', label:'마른 분수', x:660,y:560,w:300,h:140, scene:'c_fountain'}
+      ],
+      chapel:[
+        {id:'curtain', label:'단상의 장막', x:600,y:250,w:400,h:390, scene:'ch_curtain'},
+        {id:'glass', label:'스테인드글라스', x:700,y:44,w:200,h:200, scene:'ch_glass'},
+        {id:'pews', label:'신도석', x:140,y:690,w:440,h:150, scene:'ch_pews'}
+      ],
+      studio:[
+        {id:'reels', label:'릴 테이프 선반', x:1040,y:220,w:440,h:400, scene:'s_reels'},
+        {id:'mic', label:'마이크', x:340,y:290,w:150,h:400, scene:'s_mic'}
+      ],
+      dressing:[
+        {id:'robe', label:'교주의 예복', x:630,y:180,w:320,h:540, scene:'d_robe'},
+        {id:'notes', label:'치수 노트', x:1100,y:580,w:220,h:110, scene:'d_notes'}
+      ],
+      accounts:[
+        {id:'safe', label:'금고', x:910,y:390,w:210,h:310, scene:'a_safe'},
+        {id:'ledgers', label:'장부 더미', x:250,y:380,w:490,h:200, scene:'a_ledgers'}
+      ],
+      watch:[
+        {id:'monitors', label:'모니터', x:620,y:110,w:870,h:440, scene:'w_monitors'}
+      ],
+      stage:[
+        {id:'halo', label:'후광 장치', x:720,y:140,w:360,h:360, scene:'st_halo'},
+        {id:'pulley', label:'도르래', x:1200,y:100,w:240,h:290, scene:'st_pulley'}
+      ]
+    },
+    done:()=>['leo','eungyeol','arin','docheol','sian'].every(c=>S.talked['p1:'+c]) && S.examined.mirror,
+    next:'p1_done'
+  },
+  L1:{
+    goal:'후광 장치와 작업 일지를 살펴보고, 시안과 도철에게 어젯밤 이야기를 들어 보자.',
+    start:'stage',
+    chars:{stage:['leo'], watch:['sian'], accounts:['docheol'], dressing:['arin'], studio:['eungyeol']},
+    talk:{leo:['L1_leo','L1_leo'], sian:['L1_sian','L1_sian_again'], docheol:['L1_doc','L1_doc_again'], arin:['L1_arin','L1_arin_again'], eungyeol:['L1_eun','L1_eun_again']},
+    locked:{ritual:'locked_ritual'},
+    hots:{
+      stage:[
+        {id:'L_halo', label:'후광 장치', x:720,y:140,w:360,h:360, scene:'L_halo'},
+        {id:'L_log', label:'작업 일지', x:1090,y:560,w:200,h:150, scene:'L_log'}
+      ],
+      chapel:[{id:'L_floor', label:'단상 앞 바닥', x:560,y:620,w:480,h:60, scene:'L_floor'}],
+      corridor:[{id:'L_crane', label:'분수 속 종이학', x:660,y:560,w:300,h:140, scene:'L_crane'}]
+    },
+    done:()=>S.examined.L_halo && S.examined.L_log && S.talked['L1:sian'] && S.talked['L1:docheol'],
+    next:'L_rehearsal'
+  },
+  S1:{
+    goal:'녹음실의 옛 테이프와 의상실의 예복 안감을 살펴보고, 회계실의 도철에게 옛 문서를 물어보자.',
+    start:'watch',
+    chars:{watch:['sian'], studio:['eungyeol'], dressing:['arin'], accounts:['docheol'], stage:['leo']},
+    talk:{sian:['S1_sian','S1_sian'], eungyeol:['S1_eun','S1_eun_again'], arin:['S1_arin','S1_arin_again'], docheol:['S1_doc','S1_doc_again'], leo:['S1_leo','S1_leo_again']},
+    locked:{ritual:'locked_ritual'},
+    hots:{
+      studio:[{id:'S_tape', label:'오래된 테이프 상자', x:1040,y:220,w:440,h:400, scene:'S_tape'}],
+      dressing:[{id:'S_lining', label:'예복 안감', x:630,y:180,w:320,h:540, scene:'S_lining'}],
+      chapel:[{id:'S_plaque', label:'스테인드글라스', x:700,y:44,w:200,h:200, scene:'S_plaque'}],
+      hajin_room:[{id:'S_mirror', label:'거울', x:1180,y:170,w:180,h:450, scene:'S_mirror'}]
+    },
+    done:()=>S.examined.S_tape && S.examined.S_lining && S.talked['S1:docheol'],
+    next:'S_evening'
+  },
+  A1:{
+    goal:'의식실의 성체와 바닥 의식진, 의상실의 치수 노트를 살펴보고, 감시실의 시안에게 밤 영상을 부탁하자.',
+    start:'ritual',
+    chars:{ritual:['arin'], watch:['sian'], studio:['eungyeol'], stage:['leo'], accounts:['docheol']},
+    talk:{arin:['A1_arin','A1_arin'], sian:['A1_sian','A1_sian_again'], eungyeol:['A1_eun','A1_eun_again'], leo:['A1_leo','A1_leo_again'], docheol:['A1_doc','A1_doc_again']},
+    locked:{},
+    hots:{
+      ritual:[
+        {id:'A_body', label:'성체', x:690,y:270,w:220,h:380, scene:'A_body'},
+        {id:'A_circle', label:'바닥의 의식진', x:470,y:708,w:660,h:112, scene:'A_circle'},
+        {id:'A_candle', label:'촛대', x:1180,y:600,w:300,h:100, scene:'A_candle'}
+      ],
+      dressing:[{id:'A_notes', label:'치수 노트', x:1100,y:580,w:220,h:110, scene:'A_notes'}]
+    },
+    done:()=>S.examined.A_body && S.examined.A_circle && S.examined.A_notes && S.talked['A1:sian'],
+    next:'A_night'
+  },
+  D1:{
+    goal:'의상실의 아린에게 성체 간호 일지를 부탁하고, 녹음실의 방송 기록부를 확인하자.',
+    start:'accounts',
+    chars:{accounts:['docheol'], dressing:['arin'], studio:['eungyeol'], watch:['sian'], stage:['leo']},
+    talk:{docheol:['D1_doc','D1_doc'], arin:['D1_arin','D1_arin_again'], eungyeol:['D1_eun','D1_eun_again'], sian:['D1_sian','D1_sian_again'], leo:['D1_leo','D1_leo_again']},
+    locked:{ritual:'locked_ritual'},
+    hots:{
+      studio:[{id:'D_chant', label:'방송 기록부', x:120,y:600,w:540,h:110, scene:'D_chant'}],
+      chapel:[{id:'D_box', label:'헌금함', x:150,y:690,w:300,h:140, scene:'D_box'}]
+    },
+    done:()=>S.talked['D1:arin'] && S.examined.D_chant,
+    next:'D_evening'
+  },
+  E1:{
+    goal:'녹음실을 샅샅이 살피고, 하진의 방도 확인하자. 레오와 도철에게 은결에 대해 물어보자.',
+    start:'studio',
+    chars:{chapel:['eungyeol'], stage:['leo'], accounts:['docheol'], dressing:['arin'], watch:['sian']},
+    talk:{eungyeol:['E1_eun','E1_eun_again'], leo:['E1_leo','E1_leo_again'], docheol:['E1_doc','E1_doc_again'], arin:['E1_arin','E1_arin_again'], sian:['E1_sian','E1_sian_again']},
+    locked:{ritual:'locked_ritual'},
+    hots:{
+      studio:[
+        {id:'E_panel', label:'들뜬 방음재', x:580,y:150,w:200,h:200, scene:'E_panel'},
+        {id:'E_reels', label:'선반의 빈 칸', x:1040,y:220,w:440,h:400, scene:'E_reels'}
+      ],
+      hajin_room:[{id:'E_drawer', label:'책상 서랍', x:530,y:460,w:220,h:100, scene:'E_drawer'}]
+    },
+    done:()=>S.examined.E_panel && S.examined.E_drawer && S.talked['E1:leo'] && S.talked['E1:docheol'],
+    next:'E_evening'
+  },
+  F1:{
+    goal:'측근 네 명을 만나 도움을 청하고, 무대 장치실의 밧줄을 확인하자. 은결은 녹음실에 틀어박혀 있다.',
+    start:'hajin_room',
+    chars:{stage:['leo'], watch:['sian'], ritual:['arin'], chapel:['docheol']},
+    talk:{leo:['F_leo','F_leo_again'], sian:['F_sian','F_sian_again'], arin:['F_arin','F_arin_again'], docheol:['F_doc','F_doc_again']},
+    locked:{studio:'F_studio_locked'},
+    hots:{
+      stage:[{id:'F_rope', label:'새 밧줄', x:1200,y:100,w:240,h:290, scene:'F_rope'}],
+      hajin_room:[{id:'F_mirror', label:'거울', x:1180,y:170,w:180,h:450, scene:'F_mirror'}]
+    },
+    done:()=>['leo','sian','arin','docheol'].every(c=>S.talked['F1:'+c]) && S.examined.F_rope,
+    next:'F_ceremony'
+  }
+};
+
+/* ===================== 심문 ===================== */
+const TRIALS = {
+  tutorial:{
+    title:'어젯밤의 의식실',
+    statements:[
+      {s:'docheol', e:'neutral', parts:['어젯밤엔 다들 일찍 들어갔잖아. 휘광제 준비로 녹초가 돼서.']},
+      {s:'docheol', e:'angry',   parts:['의식실은 잠겨 있었어. 아무도 들어갈 수 없었다고.']},
+      {s:'docheol', e:'neutral', parts:['열쇠는 ', {w:'밤새 내 서랍 안에 있었으니까', id:'drawer'}, '.']},
+      {s:'sian',    e:'suspicious', parts:['카메라가 꺼진 4분은 아직 설명이 안 되지만.']},
+      {s:'docheol', e:'angry',   parts:['하진은 그냥 ', {w:'과로로 쓰러진 거라고', id:'tired'}, '. 끝.']}
+    ],
+    answer:{id:'drawer', ev:'key'},
+    near:{tired:'그 말이 틀렸다고 하기엔, 아직 근거가 약하다.'},
+    wrong:'그 조각으로는 이 말을 반박할 수 없다.',
+    success:'tut_success'
+  },
+  leo:{
+    title:'오작동이라는 이름의 기적',
+    statements:[
+      {s:'leo', e:'smile', parts:['마술사도 실수는 해. 장치가 많으면 하나쯤 엉뚱하게 켜지기도 하지.']},
+      {s:'leo', e:'neutral', parts:['그저께 밤 후광 장치도 ', {w:'배선이 꼬여서 혼자 켜진 거야', id:'wire'}, '.']},
+      {s:'leo', e:'neutral', parts:['그날 밤 장치실엔 ', {w:'아무도 없었으니까', id:'nobody'}, ', 누가 켰을 리도 없고.']},
+      {s:'leo', e:'smile', parts:['어제 촛불도 마찬가지. ', {w:'원격 점화 장치', id:'remote'}, '를 안 뺀 내 실수야.']},
+      {s:'leo', e:'sad', parts:['봐, 설명이 다 되잖아. 그러니까 이제 그만 파고들자.']}
+    ],
+    answer:{id:'wire', ev:['unplugged','meter']},
+    near:{nobody:'그 말은 사실이다. 영상에도 아무도 없었다.', remote:'수상하지만, 먼저 확실하게 뒤집을 수 있는 말이 있다.'},
+    wrong:'그 조각으로는 이 말을 반박할 수 없다.',
+    success:'L_trial1_ok'
+  },
+  leo2:{
+    title:'3년 전의 빛',
+    statements:[
+      {s:'leo', e:'angry', parts:['……좋아, 전원은 뽑혀 있었어. 그래도 그건 그저께 얘기야.']},
+      {s:'leo', e:'neutral', parts:['3년 전엔 달랐어. 그날은 ', {w:'내가 직접 장치를 켰어', id:'turnedon'}, '. 의식 공연이었으니까.']},
+      {s:'leo', e:'neutral', parts:['빛의 의식 날 기적은 ', {w:'전부 내 연출이었다고', id:'all'}, '.']},
+      {s:'leo', e:'smile', parts:['봐, 깔끔하잖아. 기적 같은 건 없어. 트릭만 있지.']}
+    ],
+    answer:{id:'turnedon', ev:'leo_log'},
+    near:{all:'그 말을 뒤집으려면, 그날 장치가 실제로 어땠는지부터 보여줘야 한다.'},
+    wrong:'그 조각은 3년 전 그날과는 관계가 없다.',
+    success:'L_trial2_ok'
+  },
+  sian:{
+    title:'가장 지루한 설명 ①',
+    statements:[
+      {s:'sian', e:'neutral', parts:['교주 자리는 대대로 이어진 세습직이다. 흔한 일이지.']},
+      {s:'sian', e:'neutral', parts:['사진 속 네 명은 ', {w:'모두 한 집안 사람이다', id:'family'}, '. 버릇이 같은 건 핏줄 때문이고.']},
+      {s:'sian', e:'suspicious', parts:['말투가 같은 건 ', {w:'옛 테이프를 듣고 흉내 냈기 때문', id:'mimic'}, '이다. 은결이 지금 하는 것처럼.']},
+      {s:'sian', e:'neutral', parts:['그러니까 이상할 건 없다. 전통일 뿐이야.']}
+    ],
+    answer:{id:'family', ev:'lining'},
+    near:{mimic:'그럴 수도 있다. 이 말만으로는 뒤집기 어렵다.'},
+    wrong:'그 조각으로는 이 설명을 무너뜨릴 수 없다.',
+    success:'S_t1_ok'
+  },
+  sian2:{
+    title:'가장 지루한 설명 ②',
+    statements:[
+      {s:'sian', e:'neutral', parts:['남남이라도 후계자를 정해서 가르칠 수는 있다.']},
+      {s:'sian', e:'neutral', parts:['필체가 같은 건 ', {w:'교주가 후계자에게 글씨를 직접 가르쳤기 때문', id:'taught'}, '이다.']},
+      {s:'sian', e:'suspicious', parts:['서명 따위는 ', {w:'연습하면 누구든 흉내 낼 수 있어', id:'practice'}, '.']},
+      {s:'sian', e:'neutral', parts:['이걸로 설명은 끝이다.']}
+    ],
+    answer:{id:'taught', ev:'my_signature'},
+    near:{practice:'흉내는 낼 수 있다. 하지만 배운 적도 연습한 적도 없는 사람이라면?'},
+    wrong:'그 조각으로는 이 설명을 무너뜨릴 수 없다.',
+    success:'S_t2_ok'
+  },
+  arin:{
+    title:'깨어나는 교주',
+    statements:[
+      {s:'arin', e:'smile', parts:['3년 동안 잠들어 계셨으니까, 깨어나시는 데 시간이 걸리는 건 당연해요.']},
+      {s:'arin', e:'neutral', parts:['어젯밤 그 눈빛도 ', {w:'잠이 덜 깬 교주님의 눈빛', id:'sleepy'}, '이었을 뿐이에요.']},
+      {s:'arin', e:'neutral', parts:['손가락을 두드린 것도 ', {w:'교주님이 원래 하시던 버릇', id:'habit'}, '이에요.']},
+      {s:'arin', e:'sad', parts:['그러니까 저 안에 계신 건 교주님이에요. 틀림없어요.']}
+    ],
+    answer:{id:'habit', ev:'tap'},
+    near:{sleepy:'수상하지만, 눈빛만으로는 증명하기 어렵다.'},
+    wrong:'그 조각으로는 아린의 믿음을 흔들 수 없다.',
+    success:'A_t1_ok'
+  },
+  arin2:{
+    title:'빛의 의식의 정체',
+    statements:[
+      {s:'arin', e:'angry', parts:['빛의 의식은 교주님이 더 높은 경지에 오르는 의식이었어요.']},
+      {s:'arin', e:'neutral', parts:['그 의식은 ', {w:'교주님 혼자만을 위한 것', id:'alone'}, '이었어요. 우리 측근들하고는 상관없어요.']},
+      {s:'arin', e:'sad', parts:['하진 씨가 쓰러진 건 ', {w:'그냥 과로', id:'tired'}, '고요.']},
+      {s:'arin', e:'angry', parts:['그러니까 성체 안에 다른 사람이 있을 리가 없어요.']}
+    ],
+    answer:{id:'alone', ev:['circle','measure']},
+    near:{tired:'도철도 그렇게 말했었다. 하지만 지금 뒤집어야 할 말은 그게 아니다.'},
+    wrong:'그 조각으로는 아린의 믿음을 흔들 수 없다.',
+    success:'A_t2_ok'
+  },
+  doc:{
+    title:'우연이라는 계산',
+    statements:[
+      {s:'docheol', e:'angry', parts:['사람 많이 온 날에 이상한 일이 생긴 건, 그냥 운이 나빴던 거야.']},
+      {s:'docheol', e:'neutral', parts:['숫자가 겹친 건 ', {w:'딱 한 번', id:'once'}, '뿐이야. 한 번은 우연이지.']},
+      {s:'docheol', e:'neutral', parts:['어제 네가 쓰러진 것도 ', {w:'긴장해서 그런 거고', id:'nervous'}, '.']},
+      {s:'docheol', e:'angry', parts:['그러니까 기도랑 교주님은 아무 상관 없어.']}
+    ],
+    answer:{id:'once', ev:['care_log','attend_ledger']},
+    near:{nervous:'어제 일은 직접 겪었다. 하지만 먼저 무너뜨릴 계산이 있다.'},
+    wrong:'그 조각으로는 도철의 계산을 뒤집을 수 없다.',
+    success:'D_t1_ok'
+  },
+  doc2:{
+    title:'누가 불을 지폈나',
+    statements:[
+      {s:'docheol', e:'angry', parts:['신도들은 그냥 교주님이 그리웠던 거야.']},
+      {s:'docheol', e:'neutral', parts:['호명 기도도 ', {w:'신도들이 알아서 시작한 거야', id:'selfmade'}, '. 원고도 평소처럼 하진 네가 썼을 거고.']},
+      {s:'docheol', e:'neutral', parts:['휘광제 때도 ', {w:'똑같이 하면 돼', id:'again'}, '. 다들 기다리고 있으니까.']},
+      {s:'docheol', e:'angry', parts:['누가 일부러 교주님을 깨우려 했다는 증거는 없어.']}
+    ],
+    answer:{id:'selfmade', ev:'chant_log'},
+    near:{again:'그 말을 뒤집으려면, 먼저 호명 기도가 어디서 시작됐는지 밝혀야 한다.'},
+    wrong:'그 조각으로는 도철의 계산을 뒤집을 수 없다.',
+    success:'D_t2_ok'
+  },
+  eun:{
+    title:'목소리의 연습',
+    statements:[
+      {s:'eungyeol', e:'smile', parts:['그 테이프는 제 연습 테이프 맞아요. 숨길 생각도 없었어요.']},
+      {s:'eungyeol', e:'neutral', parts:['전 그냥 ', {w:'교주님이 주신 의식문을 그대로 연습했을 뿐', id:'asgiven'}, '이에요.']},
+      {s:'eungyeol', e:'smile', parts:['교주님 목소리를 내는 게 ', {w:'제 일', id:'myjob'}, '이잖아요.']},
+      {s:'eungyeol', e:'neutral', parts:['이상한 건 하나도 없어요.']}
+    ],
+    answer:{id:'asgiven', ev:'rite_copy'},
+    near:{myjob:'그건 사실이다. 문제는 무엇을 연습했느냐다.'},
+    wrong:'은결은 그 조각을 보고도 미소를 잃지 않았다.',
+    success:'E_t1_ok'
+  },
+  eun2:{
+    title:'완벽한 알리바이',
+    statements:[
+      {s:'eungyeol', e:'neutral', parts:['의식은 의식실에서 했어요. 전 그날 밤 녹음실에 있었고요.']},
+      {s:'eungyeol', e:'smile', parts:['카메라에도 찍혔잖아요. ', {w:'녹음실에서 의식실까지 갈 방법은 없어요', id:'noway'}, '.']},
+      {s:'eungyeol', e:'neutral', parts:['레오 씨가 들었다는 목소리도 ', {w:'잘못 들은 거겠죠', id:'misheard'}, '.']},
+      {s:'eungyeol', e:'smile', parts:['그러니까 전 아무것도 안 했어요.']}
+    ],
+    answer:{id:'noway', ev:['passage','leo_voice']},
+    near:{misheard:'그 말을 뒤집기 전에, 은결이 그 자리에 갈 수 있었다는 것부터 보여야 한다.'},
+    wrong:'은결은 그 조각을 보고도 미소를 잃지 않았다.',
+    success:'E_t2_ok'
+  },
+  final:{
+    title:'4만 명 앞의 심문',
+    statements:[
+      {s:'eungyeol', e:'smile', parts:['저요? 하진 씨, 긴장해서 그래요. 휘광제는 예정대로 해야 해요.']},
+      {s:'eungyeol', e:'neutral', parts:['무대 장치는 레오 씨 담당이잖아요. ', {w:'저는 손도 안 댔어요', id:'notouch'}, '.']},
+      {s:'eungyeol', e:'neutral', parts:['호명 기도는 ', {w:'신도들을 위한 순서', id:'forthem'}, '일 뿐이고요.']},
+      {s:'eungyeol', e:'smile', parts:['그러니까 계속해요. 4만 명이 기다리고 있어요.']}
+    ],
+    answer:{id:'notouch', ev:['cue_sheet','rigged']},
+    near:{forthem:'호명 기도가 무엇을 깨우는지는 이미 안다. 하지만 지금 막아야 할 건 장치다.'},
+    wrong:'은결은 미소를 잃지 않았다. 4만 명이 술렁인다.',
+    success:'F_t_ok'
+  }
+};
+
+/* ===================== 상태 ===================== */
+const SAVE_KEY='cheonhwi-save-v1', META_KEY='cheonhwi-meta-v1';
+let S = fresh();
+let META = loadMeta();
+function fresh(){ return {mode:'title', phase:null, loc:'black', day:3, flags:{}, ev:[], talked:{}, examined:{}, route:null}; }
+function loadMeta(){ let m=null; try{ m=JSON.parse(localStorage.getItem(META_KEY)); }catch(e){} m=m||{routes:[], secrets:[], endings:[]}; m.seen=m.seen||{}; return m; }
+function saveMeta(){ try{ localStorage.setItem(META_KEY, JSON.stringify(META)); }catch(e){} }
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(makeSnap())); }catch(e){} }
+function loadSave(){ try{ return JSON.parse(localStorage.getItem(SAVE_KEY)); }catch(e){ return null; } }
+
+/* ===================== 화면 맞춤 ===================== */
+const stageEl=document.getElementById('stage');
+function fit(){ const k=Math.min(innerWidth/1600, innerHeight/900); stageEl.style.transform=`translate(-50%,-50%) scale(${k})`; }
+addEventListener('resize',fit); fit();
+
+/* ===================== 유틸 ===================== */
+const $=id=>document.getElementById(id);
+function show(id){ $(id).classList.remove('hidden'); }
+function hide(id){ $(id).classList.add('hidden'); }
+let toastT;
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200); }
+function setBg(loc){ S.loc=loc; $('bg').innerHTML=bgSVG(loc); updateHud(); }
+function updateHud(){ $('hudLoc').textContent=LOCS[S.loc]||''; $('hudDay').textContent=S.day>0?'휘광제 D-'+S.day:'휘광제 당일'; }
+function fadeTo(fn){ const f=$('fade'); f.classList.add('on'); setTimeout(()=>{ fn(); f.classList.remove('on'); },420); }
+
+/* ===================== 초상화 ===================== */
+let curPortrait=null;
+function showPortrait(id,expr){
+  const el=$('portrait');
+  if(!id){ el.classList.add('hidden'); curPortrait=null; return; }
+  expr=expr||'neutral';
+  const key=id+':'+expr;
+  el.classList.remove('hidden');
+  el.classList.toggle('mirror', id==='seolyu');
+  if(curPortrait!==key){
+    el.innerHTML=portraitHTML(id,expr)+`<span class="expr">${EXPR[expr]||''}</span>`;
+    if(!curPortrait || curPortrait.split(':')[0]!==id){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    curPortrait=key;
+  }
+}
+
+/* ===================== 대사 실행기 ===================== */
+let curId='', lineKey='', cur=[], idx=0, typing=false, typeTimer=null, fullText='', autoOn=false, skipOn=false, speed=1, autoBySpeed=false, skipping=false, skipGot=[], waiting=false, autoT=null;
+const LOG=[];
+function play(id){
+  if(!SCENES[id]){ console.error('scene missing',id); return; }
+  cur=SCENES[id]; curId=id; idx=0;
+  S.mode='talk';
+  hide('hud'); $('hots').innerHTML=''; $('figs').innerHTML='';
+  step();
+}
+function jump(id){ cur=SCENES[id]; curId=id; idx=0; }
+function step(){
+  clearTimeout(autoT); waiting=false;
+  while(true){
+    if(idx>=cur.length){ endScene(); return; }
+    const c=cur[idx++];
+    if(c.bg!==undefined){ setBg(c.bg); continue; }
+    if('p' in c){ showPortrait(c.p,c.e); continue; }
+    if(c.ev){ gainEv(c.ev); continue; }
+    if(c.set){ S.flags[c.set]=true; continue; }
+    if(c.meta){ META[c.meta]=true; saveMeta(); continue; }
+    if(c.give){ c.give.forEach(id=>{ if(!S.ev.includes(id)) S.ev.push(id); }); continue; }
+    if('day' in c){ S.day=c.day; updateHud(); continue; }
+    if(c.go){ jump(c.go); continue; }
+    if(c.if){ jump(S.flags[c.if]?c.then:c.else); continue; }
+    if(c.ifMeta){ jump(META[c.ifMeta]?c.then:c.else); continue; }
+    if(c.explore){ hideDlg(); startPhase(c.explore); return; }
+    if(c.trial){ hideDlg(); startTrial(c.trial); return; }
+    if(c.select){ hideDlg(); openSelect(); return; }
+    if(c.pending){ hideDlg(); showPending(c.pending); return; }
+    if(c.c){ showChoices(c.c); return; }
+    if(c.note){ showNote(c.note); return; }
+    if(c.ending){ hideDlg(); showEnding(c.ending,c.kind); return; }
+    if(c.finish){ hideDlg(); finishGame(c.finish); return; }
+    if(c.secret){ hideDlg(); revealSecret(c.secret); return; }
+    if(c.n!==undefined){ say(null,c.n); return; }
+    if(c.s){ if(c.s!=='hajin') showPortrait(c.s,c.e||'neutral'); say(c.s,c.t); return; }
+  }
+}
+function say(who,text){
+  show('dlg'); hide('dNext');
+  const nm=$('dName'), tx=$('dTxt');
+  if(!who){ nm.className='name narr'; nm.textContent=''; tx.className='txt narr'; }
+  else { nm.className='name'+(who==='hajin'?' hero':''); nm.textContent=CHARS[who].name; tx.className='txt'; }
+  LOG.push({who, text}); if(LOG.length>300) LOG.shift();
+  lineKey=curId+':'+(idx-1);
+  fullText=text; tx.textContent=''; typing=true;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ finishType(); return; }
+  let i=0; clearInterval(typeTimer);
+  typeTimer=setInterval(()=>{ i+=1; tx.textContent=fullText.slice(0,i); if(i>=fullText.length) finishType(); },Math.round(26/speed));
+}
+function finishType(){
+  clearInterval(typeTimer); typing=false; $('dTxt').textContent=fullText; show('dNext'); waiting=true;
+  if(!META.seen[lineKey]){ META.seen[lineKey]=1; saveMeta(); }
+  if(autoOn) autoT=setTimeout(advance,(1200+fullText.length*35)/speed);
+}
+function advance(){
+  if(['choices','note','slots','skipAsk','skipSum','evid','log'].some(id=>!$(id).classList.contains('hidden'))) return;
+  if(S.mode!=='talk') return;
+  if(typing){ finishType(); return; }
+  if(waiting) step();
+}
+function hideDlg(){ hide('dlg'); showPortrait(null); }
+function endScene(){
+  hideDlg();
+  if(S.phase){ renderExplore(); }
+}
+function showChoices(opts){
+  const box=$('choices'); box.innerHTML='';
+  opts.filter(o=>(!o.needMeta||META[o.needMeta])&&(!o.needFlag||S.flags[o.needFlag])).forEach(o=>{
+    const b=document.createElement('button'); b.textContent=o.t;
+    b.onclick=()=>{ hide('choices'); LOG.push({who:'hajin',text:'▶ '+o.t}); if(o.set) S.flags[o.set]=true; if(o.go) jump(o.go); step(); };
+    box.appendChild(b);
+  });
+  show('choices'); box.querySelector('button').focus();
+}
+function showNote(t){ $('noteTxt').textContent=t; show('note'); LOG.push({who:null,text:'[쪽지] '+t.replace(/\n/g,' ')}); }
+$('note').onclick=()=>{ hide('note'); step(); };
+function gainEv(id){ if(!S.ev.includes(id)){ S.ev.push(id); if(skipping) skipGot.push(EVID[id].name); else toast('진실의 조각을 얻었다 · '+EVID[id].name); } }
+
+$('dlg').addEventListener('click',e=>{ if(e.target.closest('.ctrl')) return; advance(); });
+$('cAuto').onclick=()=>{ autoOn=!autoOn; autoBySpeed=false; syncCtrl(); clearTimeout(autoT); if(autoOn&&waiting) autoT=setTimeout(advance,600/speed); };
+$('cSpeed').onclick=()=>{
+  if(speed===1){ speed=2; if(!autoOn){ autoOn=true; autoBySpeed=true; } }
+  else { speed=1; if(autoBySpeed){ autoOn=false; autoBySpeed=false; } }
+  syncCtrl(); clearTimeout(autoT); if(autoOn&&waiting) autoT=setTimeout(advance,500/speed);
+  toast(speed===2?'2배속으로 진행해요':'보통 속도로 돌아왔어요');
+};
+$('cSkip').onclick=()=>{ clearTimeout(autoT); show('skipAsk'); $('skYes').focus(); };
+$('skNo').onclick=()=>{ hide('skipAsk'); if(autoOn&&waiting) autoT=setTimeout(advance,600/speed); };
+$('skYes').onclick=()=>doSkip();
+
+/* 스킵: 다음 선택지·사건까지 넘기고, 처음 본 내용은 요약 */
+function sceneSummary(id){
+  if(SUM[id]) return SUM[id];
+  const first=(SCENES[id]||[]).find(c=>c.n!==undefined||c.s);
+  if(!first) return '';
+  const t=(first.n!==undefined?first.n:first.t).replace(/\n/g,' ');
+  return t.length>60?t.slice(0,59)+'…':t;
+}
+function buildSummary(ids){
+  let out='';
+  for(const id of ids){
+    const p=sceneSummary(id); if(!p) continue;
+    const next=out?out+' '+p:p;
+    if(next.length<=200){ out=next; continue; }
+    if(!out) out=p.slice(0,199)+'…'; else if(out.length<=198) out+=' …';
+    break;
+  }
+  return out;
+}
+let skipCont=null;
+function doSkip(){
+  hide('skipAsk'); clearInterval(typeTimer); clearTimeout(autoT); typing=false; waiting=false;
+  skipping=true; skipGot=[];
+  const ids=[]; let unseen=false, ended=false;
+  while(true){
+    if(idx>=cur.length){ ended=true; break; }
+    const c=cur[idx++];
+    if(c.bg!==undefined){ setBg(c.bg); continue; }
+    if('p' in c){ showPortrait(c.p,c.e); continue; }
+    if(c.ev){ gainEv(c.ev); continue; }
+    if(c.set){ S.flags[c.set]=true; continue; }
+    if(c.meta){ META[c.meta]=true; continue; }
+    if(c.give){ c.give.forEach(id=>{ if(!S.ev.includes(id)) S.ev.push(id); }); continue; }
+    if('day' in c){ S.day=c.day; updateHud(); continue; }
+    if(c.go){ jump(c.go); continue; }
+    if(c.if){ jump(S.flags[c.if]?c.then:c.else); continue; }
+    if(c.ifMeta){ jump(META[c.ifMeta]?c.then:c.else); continue; }
+    if(c.note){ LOG.push({who:null,text:'[쪽지] '+c.note.replace(/\n/g,' ')}); continue; }
+    if(c.n!==undefined||c.s){
+      const k=curId+':'+(idx-1);
+      if(!META.seen[k]){ unseen=true; META.seen[k]=1; if(!ids.includes(curId)) ids.push(curId); }
+      LOG.push({who:c.s||null, text:c.n!==undefined?c.n:c.t});
+      continue;
+    }
+    idx--; break;
+  }
+  skipping=false; saveMeta(); hideDlg();
+  skipCont=()=>{ if(ended) endScene(); else step(); };
+  if(unseen){
+    $('skText').textContent=buildSummary(ids)||'짧은 장면을 넘겼다.';
+    const g=$('skGot');
+    if(skipGot.length){ g.innerHTML='<b>얻은 진실의 조각</b>'+skipGot.map(escapeHTML).join(', '); g.classList.remove('hidden'); } else g.classList.add('hidden');
+    show('skipSum'); $('skGo').focus();
+  } else {
+    if(skipGot.length) toast('진실의 조각을 얻었다 · '+skipGot.join(', '));
+    const f=skipCont; skipCont=null; f();
+  }
+}
+$('skGo').onclick=()=>{ hide('skipSum'); const f=skipCont; skipCont=null; if(f) f(); };
+$('cLog').onclick=()=>openLog();
+function syncCtrl(){ $('cAuto').classList.toggle('on',autoOn); $('cSpeed').classList.toggle('on',speed===2); }
+
+/* ===================== 탐색 ===================== */
+function startPhase(id){
+  S.phase=id; const ph=PHASES[id];
+  if(ph.start) setBg(ph.start);
+  save(); renderExplore();
+}
+function renderExplore(){
+  const ph=PHASES[S.phase]; if(!ph) return;
+  if(ph.done()){ const nx=ph.next; S.phase=null; play(nx); return; }
+  S.mode='explore';
+  setBg(S.loc); show('hud');
+  $('hudGoal').querySelector('span').textContent=ph.goal;
+  const hots=$('hots'); hots.innerHTML='';
+  (ph.hots[S.loc]||[]).forEach(h=>{
+    const b=document.createElement('button'); b.className='hot'+(S.examined[h.id]?' seen':'');
+    Object.assign(b.style,{left:h.x+'px',top:h.y+'px',width:h.w+'px',height:h.h+'px'});
+    b.setAttribute('aria-label',h.label+' 조사하기');
+    b.innerHTML=`<span class="tip">${h.label}</span>`;
+    b.onclick=()=>{ S.examined[h.id]=true; play(h.scene); };
+    hots.appendChild(b);
+  });
+  const figs=$('figs'); figs.innerHTML='';
+  (ph.chars[S.loc]||[]).forEach((cid,i)=>{
+    const tk=S.phase+':'+cid;
+    const b=document.createElement('button'); b.className='figure'+(S.talked[tk]?' talked':'');
+    b.style.left=(CHAR_X[S.loc]+i*200)+'px';
+    b.setAttribute('aria-label',CHARS[cid].name+'에게 말 걸기');
+    b.innerHTML=portraitHTML(cid,'neutral')+`<span class="tag serif">${CHARS[cid].name}</span>`;
+    b.onclick=()=>{ const t=ph.talk[cid]; const first=!S.talked[tk]; S.talked[tk]=true; play(first?t[0]:t[1]); };
+    figs.appendChild(b);
+  });
+}
+
+/* ===================== 지도 ===================== */
+const MAP_POS = {chapel:[500,90], stage:[180,90], ritual:[820,90], studio:[120,300], corridor:[500,300], hajin_room:[880,300], dressing:[180,520], accounts:[500,540], watch:[820,520]};
+function openMap(){
+  const ph=PHASES[S.phase]; if(!ph) return;
+  const svg=$('mapSvg'); let s='';
+  const C=MAP_POS.corridor;
+  Object.keys(MAP_POS).forEach(k=>{ if(k==='corridor') return; const p=MAP_POS[k]; s+=`<line x1="${C[0]+120}" y1="${C[1]+50}" x2="${p[0]+120}" y2="${p[1]+50}" stroke="#508AA8" stroke-width="3" opacity=".5"/>`; });
+  s+=`<line x1="${MAP_POS.stage[0]+240}" y1="140" x2="${MAP_POS.chapel[0]}" y2="140" stroke="#508AA8" stroke-width="3" opacity=".5"/><line x1="${MAP_POS.chapel[0]+240}" y1="140" x2="${MAP_POS.ritual[0]}" y2="140" stroke="#508AA8" stroke-width="3" opacity=".5"/>`;
+  Object.entries(MAP_POS).forEach(([k,[x,y]])=>{
+    const who=(ph.chars[k]||[]).map(c=>CHARS[c].name).join(', ');
+    const lock=ph.locked&&ph.locked[k];
+    s+=`<g class="node${k===S.loc?' cur':''}${lock?' lock':''}" data-loc="${k}" tabindex="0" role="button" aria-label="${LOCS[k]}로 이동">
+      <rect x="${x}" y="${y}" width="240" height="100"/>
+      <text x="${x+20}" y="${y+46}">${LOCS[k]}</text>
+      <text class="who" x="${x+20}" y="${y+78}">${lock?'잠겨 있음':(k===S.loc?'지금 여기':who)}</text></g>`;
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll('.node').forEach(n=>{
+    const go=()=>{ const k=n.dataset.loc; hide('map');
+      if(ph.locked&&ph.locked[k]){ play(ph.locked[k]); return; }
+      if(k===S.loc) return;
+      fadeTo(()=>{ S.loc=k; renderExplore(); });
+    };
+    n.onclick=go; n.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+  show('map');
+}
+
+/* ===================== 진실의 조각 화면 ===================== */
+let evPick=null, evSel=null;
+function openEvid(pickCb){
+  evPick=pickCb||null;
+  $('evMode').textContent=evPick?'반박에 쓸 조각을 고르세요':'';
+  const list=$('evList'); list.innerHTML='';
+  if(!S.ev.length){ list.innerHTML='<div class="empty">아직 모은 조각이 없어요. 조사하고 대화하면서 모아보세요.</div>'; $('evDetail').innerHTML=''; show('evid'); return; }
+  S.ev.forEach(id=>{
+    const b=document.createElement('button'); b.className='item'; b.textContent=EVID[id].name;
+    b.onclick=()=>selEv(id); list.appendChild(b);
+  });
+  selEv(evSel&&S.ev.includes(evSel)?evSel:S.ev[0]);
+  show('evid');
+}
+function selEv(id){
+  evSel=id;
+  [...$('evList').children].forEach((b,i)=>b.classList.toggle('sel',S.ev[i]===id));
+  const d=$('evDetail');
+  d.innerHTML=`<h3>${EVID[id].name}</h3><p>${EVID[id].desc}</p>`+(evPick?`<button class="btn primary present">이 조각을 제시한다</button>`:'');
+  if(evPick) d.querySelector('.present').onclick=()=>{ const cb=evPick; evPick=null; hide('evid'); cb(id); };
+}
+
+/* ===================== 지난 대사 ===================== */
+function openLog(){
+  const l=$('logList'); l.innerHTML='';
+  LOG.slice(-120).forEach(r=>{ const d=document.createElement('div'); d.className='row'+(r.who?'':' narr'); d.innerHTML=(r.who?`<b>${CHARS[r.who].name}</b>`:'')+escapeHTML(r.text); l.appendChild(d); });
+  show('log'); l.scrollTop=l.scrollHeight;
+}
+function escapeHTML(t){ return t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ===================== 심문 ===================== */
+let T=null;
+function startTrial(id){
+  const def=TRIALS[id];
+  T={id, def, i:0, focus:3, pending:null};
+  S.mode='trial';
+  $('trTitle').textContent=def.title;
+  show('trial'); renderTrial();
+}
+function renderTrial(){
+  const st=T.def.statements[T.i];
+  $('trWho').textContent=CHARS[st.s].name;
+  $('trCount').textContent=`발언 ${T.i+1} / ${T.def.statements.length}`;
+  $('trPor').innerHTML=portraitHTML(st.s,st.e);
+  const box=$('trStmt'); box.innerHTML='';
+  st.parts.forEach(p=>{
+    if(typeof p==='string'){ box.appendChild(document.createTextNode(p)); }
+    else { const sp=document.createElement('span'); sp.className='weak'; sp.textContent=p.w; sp.tabIndex=0; sp.setAttribute('role','button');
+      const act=()=>openEvid(ev=>checkAnswer(p.id,ev)); sp.onclick=act; sp.onkeydown=e=>{ if(e.key==='Enter'){ act(); } }; box.appendChild(sp); }
+  });
+  const p=$('trPips'); p.innerHTML='';
+  for(let k=0;k<3;k++){ const d=document.createElement('span'); d.className='pip'+(k<T.focus?'':' off'); p.appendChild(d); }
+  $('trPrev').disabled=T.i===0;
+}
+function checkAnswer(wid,ev){
+  const a=T.def.answer;
+  const okEv=Array.isArray(a.ev)?a.ev:[a.ev];
+  if(wid===a.id && okEv.includes(ev)){
+    $('trFb').textContent='';
+    hide('trial'); toast('반박 성공!');
+    const nx=T.def.success; T=null; S.mode='talk'; play(nx); return;
+  }
+  T.focus--;
+  const msg=(T.def.near&&T.def.near[wid])||T.def.wrong;
+  $('trFb').textContent=msg;
+  const tr=$('trial'); tr.classList.remove('shake'); void tr.offsetWidth; tr.classList.add('shake');
+  if(T.focus<=0){ T.focus=3; T.i=0; $('trFb').textContent='집중이 흐트러졌다. 처음부터 다시 듣자.'; }
+  renderTrial();
+}
+$('trPrev').onclick=()=>{ if(T&&T.i>0){ T.i--; $('trFb').textContent=''; renderTrial(); } };
+$('trNext').onclick=()=>{ if(T){ T.i=(T.i+1)%T.def.statements.length; $('trFb').textContent=''; renderTrial(); } };
+$('trEv').onclick=()=>openEvid();
+
+/* ===================== 동행 선택 ===================== */
+const SEL_LINES = {
+  leo:'꺼 둔 장치가 켜져 있었다고 한다. 정말 몰랐을까.',
+  sian:'카메라를 관리하는 사람. 꺼진 4분을 가장 잘 아는 것도 그다.',
+  arin:'성체를 3년간 돌봐 온 사람. 치수 노트를 숨겼다.',
+  docheol:'열쇠는 밤새 서랍에 있었다고 했다. 거짓말이었다.',
+  eungyeol:'설교 문장을 내가 잇자, 손이 하얗게 질렸다.'
+};
+const ORDER=['leo','eungyeol','arin','docheol','sian'];
+let selTarget=null;
+function josa(w){ const c=w.charCodeAt(w.length-1)-0xAC00; return (c>=0&&c<11172&&c%28)?'을':'를'; }
+function openSelect(){
+  S.mode='select'; S.phase=null; S.route=null; save();
+  if(!META.selSnap){ META.selSnap=JSON.parse(JSON.stringify(S)); saveMeta(); }
+  hide('hud'); $('hots').innerHTML=''; $('figs').innerHTML='';
+  const box=$('selCards'); box.innerHTML='';
+  ORDER.forEach(id=>{
+    const c=CHARS[id];
+    const b=document.createElement('button'); b.className='card';
+    b.innerHTML=portraitHTML(id,'neutral')+`<span class="nm">${c.name}</span><span class="rl">${c.role}</span><span class="ln">${SEL_LINES[id]}</span>`+(META.routes.includes(id)?'<span class="done">완료</span>':'');
+    b.onclick=()=>{ selTarget=id; $('cfTxt').textContent=`${c.name}${josa(c.name)} 의심하고 파고들까요? 고르면 이번 회차는 이 사람의 이야기로 진행돼요.`; show('confirm'); $('cfYes').focus(); };
+    box.appendChild(b);
+  });
+  $('selFinal').classList.toggle('hidden',!canStartFinal());
+  show('select');
+}
+$('cfYes').onclick=()=>{ hide('confirm'); hide('select'); S.route=selTarget; play('teaser_'+selTarget); };
+$('cfNo').onclick=()=>hide('confirm');
+function showPending(id){
+  S.mode='select';
+  $('pdTxt').textContent=`${CHARS[id].name} 루트는 다음 단계에서 열려요. 지금은 다른 사람을 골라 미리 대화를 들어보거나, 타이틀로 돌아갈 수 있어요.`;
+  show('pending');
+}
+$('pdBack').onclick=()=>{ hide('pending'); openSelect(); };
+
+/* ===================== 저장 슬롯 ===================== */
+const SLOT_KEY='cheonhwi-slots-v1', SLOT_N=6;
+function getSlots(){ try{ const a=JSON.parse(localStorage.getItem(SLOT_KEY)); if(Array.isArray(a)) return a; }catch(e){} return []; }
+function setSlots(a){ try{ localStorage.setItem(SLOT_KEY, JSON.stringify(a)); return true; }catch(e){ return false; } }
+function makeSnap(){
+  const s={S:JSON.parse(JSON.stringify(S)), time:Date.now(), line:LOG.length?LOG[LOG.length-1].text:''};
+  if(S.route==='final') s.finalRevision=2;
+  if(S.mode==='talk'){ s.kind='talk'; s.scene=curId; s.idx=Math.max(0,idx-1); s.portrait=curPortrait; }
+  else if(S.mode==='trial' && T){ s.kind='trial'; s.trial=T.id; s.ti=T.i; s.tf=T.focus; }
+  else if(S.mode==='select'){ s.kind='select'; }
+  else s.kind='explore';
+  return s;
+}
+function slotInfo(d){
+  const st=d.S||d;
+  const where=st.route==='final'?'최종장':(st.route?CHARS[st.route].name+' 루트':'공통 파트');
+  const t=d.time?new Date(d.time):null;
+  const when=t?`${t.getMonth()+1}월 ${t.getDate()}일 ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`:'';
+  const kind={talk:'대화 중',trial:'심문 중',select:'동행 선택',explore:'탐색 중'}[d.kind]||'';
+  return {a:`${where} · ${LOCS[st.loc]||''} · 휘광제 D-${st.day}`, b:d.line?('“'+d.line.replace(/\n/g,' ')+'”'):kind, c:[kind,when].filter(Boolean).join(' · ')};
+}
+let slotMode='save', armed=-1;
+function openSlots(mode){
+  slotMode=mode; armed=-1;
+  $('slTitle').textContent=mode==='save'?'저장':'불러오기';
+  $('slSub').textContent=mode==='save'?'저장할 슬롯을 고르세요. 이미 저장된 슬롯은 한 번 더 누르면 덮어써요.':'불러올 기록을 고르세요.';
+  renderSlots(); show('slots');
+}
+function renderSlots(){
+  const g=$('slGrid'); g.innerHTML='';
+  const slots=getSlots();
+  const cards=[];
+  if(slotMode==='load'){ let auto=null; try{ auto=JSON.parse(localStorage.getItem(SAVE_KEY)); }catch(e){} cards.push({label:'자동', data:auto, i:'auto'}); }
+  for(let i=0;i<SLOT_N;i++) cards.push({label:'슬롯 '+(i+1), data:slots[i]||null, i});
+  cards.forEach(c=>{
+    const b=document.createElement('button'); b.className='slot'+(c.data?'':' empty')+(armed===c.i?' armed':'');
+    if(c.data){ const f=slotInfo(c.data); b.innerHTML=`<span class="no">${c.label}</span><span class="a">${escapeHTML(f.a)}</span><span class="b">${escapeHTML(f.b)}</span><span class="c">${escapeHTML(armed===c.i?'한 번 더 누르면 덮어써요':f.c)}</span>`; }
+    else { b.innerHTML=`<span class="no">${c.label}</span><span class="a">비어 있음</span><span class="b"></span><span class="c"></span>`; if(slotMode==='load') b.disabled=true; }
+    b.onclick=()=>{
+      if(slotMode==='load'){ if(c.data) loadSnap(c.data); return; }
+      if(c.data && armed!==c.i){ armed=c.i; renderSlots(); return; }
+      const a=getSlots(); a[c.i]=makeSnap();
+      if(setSlots(a)){ toast(c.label+'에 저장했어요'); } else toast('이 브라우저에서는 저장할 수 없어요');
+      armed=-1; renderSlots();
+    };
+    g.appendChild(b);
+  });
+}
+function clearUI(){
+  ['hud','dlg','choices','note','evid','log','map','trial','select','confirm','pending','rec','endcard','secretRev','slots','skipAsk','skipSum','title'].forEach(hide);
+  showPortrait(null); $('hots').innerHTML=''; $('figs').innerHTML='';
+  autoOn=skipOn=false; autoBySpeed=false; speed=1; syncCtrl(); clearTimeout(autoT); clearInterval(typeTimer); T=null;
+}
+function loadSnap(d){
+  if(!d) return;
+  if((d.S||d).route==='final'){
+    if(!canStartFinal()){ toast('최종장은 다섯 개인 루트를 모두 완료한 뒤 열립니다.'); return; }
+    if(d.finalRevision!==2){ startFinal(); toast('최종장이 갱신되어 첫 장면부터 시작합니다. 개인 루트 기록은 유지됩니다.'); return; }
+  }
+  if(!d.S) d={S:d, kind:d.mode==='select'?'select':(d.phase?'explore':'new')};
+  clearUI(); LOG.length=0;
+  S=Object.assign(fresh(), JSON.parse(JSON.stringify(d.S)));
+  fadeTo(()=>{
+    setBg(S.loc);
+    if(d.kind==='talk' && SCENES[d.scene]){
+      S.mode='talk'; cur=SCENES[d.scene]; curId=d.scene; idx=d.idx||0;
+      if(d.portrait){ const [a,e]=d.portrait.split(':'); showPortrait(a,e); }
+      step();
+    } else if(d.kind==='trial' && TRIALS[d.trial]){
+      startTrial(d.trial); T.i=d.ti||0; T.focus=d.tf||3; renderTrial();
+    } else if(d.kind==='select'){ openSelect(); }
+    else if(S.phase){ renderExplore(); }
+    else { play('prologue'); }
+  });
+}
+
+/* ===================== 엔딩 · 비밀 ===================== */
+function showEnding(t,kind){ $('endcard').querySelector('.k').textContent=kind||'개인 엔딩'; $('endTitle').textContent=t; show('endcard'); }
+function finishGame(id){
+  if(!META.endings.includes(id)){ META.endings.push(id); saveMeta(); }
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  S.mode='title';
+  fadeTo(()=>{ toTitle(); toast('엔딩 목록에 기록되었어요 · '+META.endings.length+' / 3'); });
+}
+function canStartFinal(){ return ORDER.every(id=>META.routes.includes(id)&&META.secrets.includes(id)); }
+function beginFinal(memory){
+  if(!canStartFinal()) return;
+  clearUI(); S=fresh(); S.route='final'; S.day=3;
+  S.flags.finalLullaby=!!memory; LOG.length=0;
+  fadeTo(()=>{ play('F_open'); save(); });
+}
+function startFinal(){
+  if(!canStartFinal()){ toast('다섯 사람의 이야기를 모두 끝내고 비밀을 모아 주세요.'); return; }
+  beginFinal(META.lullaby);
+}
+
+
+$('endcard').onclick=()=>{ hide('endcard'); step(); };
+function revealSecret(route){
+  if(!META.routes.includes(route)) META.routes.push(route);
+  if(!META.secrets.includes(route)) META.secrets.push(route);
+  saveMeta();
+  S.phase=null; S.mode='select';
+  if(META.selSnap){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify({S:META.selSnap, kind:'select', time:Date.now(), line:''})); }catch(e){} }
+  const sc=SECRETS.find(s=>s.route===route);
+  $('srTitle').textContent=sc.title; $('srText').textContent=sc.text;
+  $('srCnt').textContent=`모은 비밀 ${META.secrets.length} / 5`+(META.secrets.length>=5?' · 최종장이 열렸다':'');
+  $('srFinal').classList.toggle('hidden',!canStartFinal());
+  if(canStartFinal()) $('srCnt').textContent='다섯 사람의 이야기가 모두 끝났다 · 이제 휘광제의 진실을 밝힐 때다';
+  show('secretRev');
+}
+function resumeSelect(){
+  hide('secretRev'); hide('title');
+  if(!META.selSnap) return;
+  S=Object.assign(fresh(),JSON.parse(JSON.stringify(META.selSnap)));
+  fadeTo(()=>{ setBg('hajin_room'); openSelect(); });
+}
+$('srSel').onclick=resumeSelect;
+
+/* ===================== 기록 ===================== */
+function openRecords(){
+  $('recSecrets').innerHTML='<h3>세계의 비밀</h3>'+SECRETS.map(s=>{ const o=META.secrets.includes(s.route); return `<div class="entry ${o?'open':'lock'}"><b>${o?s.title:'??? · '+CHARS[s.route].name+' 루트에서 열림'}</b>${o?s.text:'아직 알 수 없다.'}</div>`; }).join('');
+  $('recEndings').innerHTML='<h3>엔딩</h3>'+ENDINGS.map(e=>{ const o=META.endings.includes(e.id); return `<div class="entry ${o?'open':'lock'}"><b>${o?e.title:'???'}</b>${o?'본 엔딩':'다섯 개의 비밀을 모두 모으면 최종장에서 만날 수 있다.'}</div>`; }).join('');
+  show('rec');
+}
+
+/* ===================== 타이틀 ===================== */
+function toTitle(){
+  clearUI();
+  setBg('black');
+  $('tCont').disabled=!loadSave() && !getSlots().some(Boolean);
+  $('tFinal').disabled=!canStartFinal();
+  $('tFinal').classList.toggle('hidden',!canStartFinal());
+  $('tSel').classList.toggle('hidden',!META.selSnap);
+  S.mode='title';
+  show('title');
+}
+$('tNew').onclick=()=>{ hide('title'); S=fresh(); LOG.length=0; fadeTo(()=>play('prologue')); };
+$('tCont').onclick=()=>openSlots('load');
+$('tSel').onclick=resumeSelect;
+$('tFinal').onclick=startFinal;
+
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]'); if(a){
+    const act=a.dataset.act;
+    if(act==='map') openMap();
+    else if(act==='evid') openEvid();
+    else if(act==='log') openLog();
+    else if(act==='save') openSlots('save');
+    else if(act==='load') openSlots('load');
+    else if(act==='records') openRecords();
+    else if(act==='title'){ if(S.mode!=='title') save(); toTitle(); }
+  }
+  const c=e.target.closest('[data-close]'); if(c){ hide(c.dataset.close); if(c.dataset.close==='evid') evPick=null; }
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if(!$('skipAsk').classList.contains('hidden')){ $('skNo').click(); return; } ['slots','evid','log','map','rec','confirm'].forEach(id=>{ if(!$(id).classList.contains('hidden')) hide(id); }); evPick=null; return; }
+  if((e.key===' '||e.key==='Enter') && S.mode==='talk' && ['slots','skipAsk','skipSum'].every(id=>$(id).classList.contains('hidden'))){
+    if(!$('note').classList.contains('hidden')){ e.preventDefault(); hide('note'); step(); return; }
+    if($('choices').classList.contains('hidden') && document.activeElement.tagName!=='BUTTON'){ e.preventDefault(); advance(); }
+  }
+});
+
+
+/* 최종장 설득 진행: 대화 방문 횟수가 아닌 동의 플래그만 센다. */
+const FINAL_ALLIES=['leo','sian','arin','docheol'];
+function allyCount(){return FINAL_ALLIES.filter(id=>S.flags['ally_'+id]).length;}
+const persuasionPhase={
+ start:'hajin_room', chars:{stage:['leo'],watch:['sian'],dressing:['arin'],accounts:['docheol']},
+ talk:Object.fromEntries(FINAL_ALLIES.map(id=>[id,['FP_entry_'+id,'FP_entry_'+id]])),
+ hots:{hajin_room:[{id:'FP_memory',label:'기억을 적은 수첩',x:530,y:460,w:220,h:100,scene:'FP_notebook'}]},
+ locked:{studio:'FP_studio',ritual:'FP_ritual'}
+};
+PHASES.FP1={...persuasionPhase,goal:'첫날 · 네 동료 중 두 사람의 마음을 듣고 설득하자. 틀린 답을 골라도 다시 이야기할 수 있다.',done:()=>allyCount()>=2,next:'F_day2'};
+PHASES.FP2={...persuasionPhase,goal:'다음 날 · 아직 동의하지 않은 두 사람을 설득하자. 네 사람의 동의를 모두 얻어야 휘광제를 준비할 수 있다.',done:()=>allyCount()>=4,next:'F_allies'};
+SCENES.FP_notebook=[N('레오는 사람을 살리는 마술, 시안은 숨기지 않는 기록, 아린은 성체 안의 사람, 도철은 신도에게 진 빚을 지키려 한다. 상대의 책임을 몰아붙이기 전에, 그가 지키고 싶은 것을 함께 지킬 방법을 말하자.')];
+SCENES.FP_studio=[N('은결은 녹음 중이다. 아직 함께 진실을 확인해 줄 사람이 없다. 먼저 네 동료와 이야기하자.')];
+SCENES.FP_ritual=[N('성체는 안정을 취하고 있다. 아린을 먼저 만나 하진의 신호를 확인하자.')];
+Object.assign(SCENES,{"FP_entry_leo":[{"if":"ally_leo","then":"FP_leo_again","else":"FP_leo"}],"FP_entry_sian":[{"if":"ally_sian","then":"FP_sian_again","else":"FP_sian"}],"FP_entry_arin":[{"if":"ally_arin","then":"FP_arin_again","else":"FP_arin"}],"FP_entry_docheol":[{"if":"ally_docheol","then":"FP_docheol_again","else":"FP_docheol"}]});
+const renderExploreBeforePersuasion=renderExplore;
+renderExplore=function(){renderExploreBeforePersuasion();if(S.mode==='explore'&&['FP1','FP2'].includes(S.phase)){
+ $('hudGoal').querySelector('span').textContent=PHASES[S.phase].goal+' [동의 '+allyCount()+'/4]';
+ const ph=PHASES[S.phase];(ph.chars[S.loc]||[]).forEach((id,i)=>{const b=$('figs').children[i];if(b&&S.flags['ally_'+id]){b.classList.add('talked');b.setAttribute('aria-label',CHARS[id].name+' · 설득 완료');const tag=b.querySelector('.tag');if(tag)tag.textContent=CHARS[id].name+' · 함께하기로 약속';}});
+}};
+
+Object.assign(SUM,{"F_open":"휘광제 사흘 전 처음 깨어난 의식실로 돌아왔다. 나만 지난 다섯 루트의 기억을 갖고 있다. 동료들은 아직 나를 믿지 않으므로 각자의 바람을 듣고 설득해야 한다.","F_day2":"두 사람을 설득한 뒤 밤이 지나 D-2가 되었다. 나머지 두 사람과 이야기할 차례다.","F_allies":"네 동료가 각자 확인한 증거를 모았다. 교주는 2016년 은우의 몸을 빼앗았고, 2023년 은결이 바꾼 의식에서 소멸했다. 은우는 하진의 몸에, 하진은 은우의 몸에 남았다. 모두 역할을 나누고 하루 동안 준비한 뒤 휘광제 당일을 맞았다.","F_t_ok":"큐시트와 철사로 사고 계획을 설명했다. 은결은 오빠를 되찾으려고 다시 의식을 하려 했다고 말했다. 동료들은 자신의 잘못과 세 해 전의 진실을 모두 공개했다. 이제 은결에게 자장가의 기억을 전할 수 있다.","F_recognize":"자장가의 끝 소절을 듣고 은결은 오빠를 알아봤다. 교주는 10년 전이 아니라 3년 전 의식에서 사라졌다. 풀려난 은우는 하진의 몸에, 하진은 은우의 몸에 갇혔다. 은결은 오빠를 알아보지 못해 미안하다며 보고 싶었다고 고백하고 협력했다.","F_joint":"시안이 철사를 잡고 은결이 힘을 풀었다. 레오가 안전 걸쇠를 잠그고 도철이 신도들을 피신시켰다. 아린은 하진의 동의를 확인했다. 모두 자신의 잘못을 공개하고 몸을 돌려줄 준비를 했다.","F_hidden":"은결과 동료들이 함께 역의식을 준비했다. 하진은 자기 몸으로, 은우는 성체라 불리던 자기 몸으로 돌아왔다. 교단은 해체되고 남매와 동료들은 아무도 잃지 않은 아침에 다시 만났다.","FP_leo":"축제가 끝나면 거리로 돌아가고 싶다고 했죠. 사람들이 속았다는 걸 알면서도 웃어 주는 곳으로. ……누구한테 들었지? 그 말은 입 밖에 낸 적 없는데.","FP_leo_ok":"사람을 살리는 마지막 마술을 위해 함께하기로 했다. 좋아. 방송은 내가 끊고, 후광 장치에는 보조 걸쇠를 달게. 아무도 내 무대에서 죽게 두지 않겠어. 휘광제 다음 날, 작은 광장에서 공연할 거야. 너도 와. 입장료는 박수 한 번.","FP_sian":"당신이 수갑 대신 사진을 건네며 한 말이 기억나요. 이번엔 다르게 끝내라고. 한 적 없는 말이다. 그래도 내가 할 법한 말이군.","FP_sian_ok":"기록보다 사람을 남기는 선택을 위해 함께하기로 했다. 좋다. 네 기억은 가설로 기록한다. 통로와 출입 시간은 내가 확인하겠다. 지킬 사람은 진실 뒤에 숨지 않는다. 오늘은 네가 도망치지 않았으니, 나도 여기 있지.","FP_arin":"그 손가락이 두 번 움직일 거예요. 그 안에 있는 사람은 하진이에요. ……지금 당신 입으로 그런 말을 하면 내가 어떤 얼굴을 해야 해요?","FP_arin_ok":"신이 아니라 사람을 돌보는 일을 위해 함께하기로 했다. 먼저 손가락 신호를 확인할게요. 동의를 확인하지 않고는 아무 의식도 안 해요. 나는 성체를 무대에서 내리고 침대를 준비할게요. 하진 씨도, 돌아올 사람도, 둘 다 누울 자리가 있게.","FP_docheol":"당신이 더 무서워하는 숫자는 돈이 아니라 참석자 수잖아요. ……장부 봤냐?","FP_docheol_ok":"믿음에 진 빚을 갚는 일을 위해 함께하기로 했다. 좋아. 출구마다 사람 세워 놓고, 환불 장부도 따로 만들지. 혼란 나면 내가 앞에 선다. 겁나서 안 하는 건 이제 끝이다. 빚쟁이는 빚을 받는 사람이지, 남의 믿음을 빌려 쓰는 사람이 아니거든."});
+
+toTitle();
+</script>
+</body>
+</html>
